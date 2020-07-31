@@ -39,7 +39,7 @@ Python Modules:
 * fileinput
 * numpy
 * cv2 (Also known as OpenCV. You may have to compile from source depending on your setup. Guides are a Google search away.
-* mbedtls
+* mbedtls (python-mbedtls, may also have to be compiled from source.)
 
 # Installation
 
@@ -56,5 +56,6 @@ cd harmonizeproject
 -g {#} Use specific entertainment group number
 
 Configurage things
-* Seconds
-* ratio of pixelation?
+* 'breadth' within function 'averageimage' - determines the % of the edges of the screen to use in calculations. Default is 15%.
+* 'if ct % 1 == 0:' within funciton 'cv2input_to_buffer' - Edit to skip frames if performance is poor on your device. 
+* 'time.sleep(0.005)' within funciton 'buffer_to_light' - Determines how frequently messages are sent to the bridge. Keep in mind the rest of the function takes some time to run in addition to this sleep command. Bridge requests are capped by Philips at about 100 if I recall correctly.
