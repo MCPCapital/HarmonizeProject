@@ -41,3 +41,20 @@ Python Modules:
 * cv2 (Also known as OpenCV. You may have to compile from source depending on your setup. Guides are a Google search away.
 * mbedtls
 
+# Installation
+
+git clone https://github.com/MCPCapital/harmonizeproject.git
+
+cd harmonizeproject
+
+# Usage
+
+./harmonizeproject.py -c -a -s 
+
+-v (verbose)
+
+-g {#} Use specific entertainment group number
+
+Configurage things
+* Seconds
+* ratio of pixelation?
