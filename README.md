@@ -15,8 +15,13 @@ Streaming to Hue Lights via Entertainment API
 Sending 50-75 color updates per second
 
 # Requirements: (Tested on Raspberry Pi 4B)
-RAM: 512MB Minimum
+----------Hardware----------
+RAM: 512MB Minimum (No swap)
 CPU: 1GHz minimum, 4 Cores strongly reccomended
 HDMI Splitter (Must be able to output 4k & 1080/720p simultaneously)
 USB3.0 HDMI Capture Card (throughput of 720/1080p)
 
+----------Software----------
+Python3 (Project written and tested on 3.6)
+pip3
+Screen (if you intend to run this on a headless server)
