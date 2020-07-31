@@ -1,12 +1,10 @@
 Harmonize Project for Philips Hue 
 ============================
-Harmonize Project (formerly known as Harmonize Hue) - This project has no affiliation with Signify or Philips Hue.
-
-Harmonize is a low latency video analysis and pass-through application built in Python which alters Philips Hue lights based on their location relative to a screen; creating an ambient lighting effect and expanding content past the boundries of a screen.
+Harmonize is a low latency video analysis and pass-through application built in Python which alters Philips Hue lights based on their location relative to a screen; creating an ambient lighting effect and expanding content past the boundries of a screen. [Watch the demo here!](https://www.youtube.com/watch?v=OkyUntgiYzQ)
 
 Currently in development - Expected release in August 2020
 
-Due to litigation with Signify (Owner of the Philips Hue brand), our website was taken down. The homepage for this project is now https://harmonizeproject.matthewpilsbury.com/
+Due to litigation with Signify (Owner of the Philips Hue brand), our website was taken down. Harmonize Project (formerly known as Harmonize Hue) - This project has no affiliation with Signify or Philips Hue.
 
 # Features:
 * Low Latency loop-through HDMI output
