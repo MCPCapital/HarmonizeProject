@@ -14,14 +14,32 @@ Location based light changes
 Streaming to Hue Lights via Entertainment API
 Sending 50-75 color updates per second
 
-# Requirements: (Tested on Raspberry Pi 4B)
-----------Hardware----------
+# Requirements 
+Hardware: (Tested on Raspberry Pi 4B)
 RAM: 512MB Minimum (No swap)
 CPU: 1GHz minimum, 4 Cores strongly reccomended
-HDMI Splitter (Must be able to output 4k & 1080/720p simultaneously)
-USB3.0 HDMI Capture Card (throughput of 720/1080p)
+HDMI Splitter (Must be able to output 4k & 1080/720p simultaneously) [Here is a good one](https://www.amazon.com/gp/product/B07YTWV8PR/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
+USB3.0 HDMI Capture Card (Capable of capturing 720/1080p) [I got this one for $45.](https://www.amazon.com/gp/product/B07Z7RNDBZ/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1) A similar one should be fine.
 
-----------Software----------
+Software:
 Python3 (Project written and tested on 3.6)
 pip3
 Screen (if you intend to run this on a headless server)
+v4l2 (You may need a different driver based on your HDMI->USB Capture card. Information on drivers for cheap video cards is [here](https://linuxtv.org/wiki/index.php/Easycap#Making_it_work_4) 
+
+Python Modules:
+sys
+http_parser
+argparse
+requests
+time
+json
+pathlib
+socket
+subprocess
+threading
+fileinput
+numpy
+cv2
+mbedtls
+
