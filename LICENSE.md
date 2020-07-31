@@ -1,6 +1,6 @@
 Licensed under Creative Commons Attribution-NonCommercial 3.0 Unported (CC BY-NC 3.0) (https://creativecommons.org/licenses/by-nc/3.0/)
 
-Please contact me if you desire to use this work for a commercial purpose.
+You are free (for non-commercial purposes) to use, redistribute, and alter code with attribution. Please contact me if you desire to use this work for a commercial purpose.
 
 ---------
 
