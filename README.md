@@ -39,7 +39,7 @@ Python Modules:
 * fileinput
 * numpy
 * cv2 (Also known as OpenCV. You may have to compile from source depending on your setup. Guides are a Google search away.
-* mbedtls (python-mbedtls, may also have to be compiled from source.)
+* mbedtls (python-mbedtls, may also have to be compiled from source. Use [this](https://github.com/ARMmbed/mbedtls) for Raspberry Pi or other ARM computers)
 
 # Installation
 
