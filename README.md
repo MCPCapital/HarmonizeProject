@@ -46,7 +46,7 @@ Python Modules: (sudo pip3 install *modulename*)
 * fileinput
 * numpy
 * cv2 (opencv-python==3.4.6.27 for Raspberry Pi) You may have to compile from source depending on your setup.
-* mbedtls (python-mbedtls==0.6 for Raspberry Pi; may recieve install errors and still work.) May also have to be compiled from source. Use [this](https://github.com/ARMmbed/mbedtls) for Raspberry Pi or other ARM computers.)
+* mbedtls (python-mbedtls==0.6 for Raspberry Pi) May also have to be compiled from source. Use [this](https://github.com/ARMmbed/mbedtls) for Raspberry Pi or other ARM computers.)
 
 # Installation & Usage
 
