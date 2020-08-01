@@ -88,3 +88,5 @@ Configurable values within the scripts:
 Pull requests are encouraged and accepted! Whether you have some code changes or enhancements to the readme, feel free to open a pull request.
 
 Please see the license file at the root level of the source code for the applicable license.
+
+Development credits to Matthew C. Pilsbury and Ares N. Vlahos.
