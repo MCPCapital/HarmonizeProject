@@ -21,12 +21,13 @@ Hardware: (Tested on Raspberry Pi 4B)
 Software: (sudo apt install *packagename*)
 * python3 (Project written and tested on 3.6)
 * pip3
-* python3-dev
+* python3-dev (and libpython-dev)
 * python3-opencv
 * libqtgui4
 * libqt4-test
 * libgstreamer1.0-0
 * libjpeg62-dev (and its dependency libjpeg62)
+* libmbedtls-dev (and libmbedtls12)
 * screen (if you intend to run this on a headless server; recommended)
 * v4l2 (You may need a different driver based on your HDMI->USB Capture card. Information on drivers for cheap video cards is [here](https://linuxtv.org/wiki/index.php/Easycap#Making_it_work_4)). For Raspberry Pi run *rpi-update* to update to newer kernels which include this driver, then *sudo modprobe bcm2835-v4l2*   [More info here](https://www.raspberrypi.org/forums/viewtopic.php?f=43&t=62364&sid=239323676f4f6952da3d5c38e2ac9575)
 I may be missing something - if you discover another dependency, please open an issue and I shall add it to the list.
@@ -46,7 +47,7 @@ Python Modules: (sudo pip3 install *modulename*)
 * fileinput
 * numpy
 * cv2 (opencv-python==3.4.6.27 for Raspberry Pi) You may have to compile from source depending on your setup.
-* mbedtls (python-mbedtls==0.6 for Raspberry Pi) May also have to be compiled from source. Use [this](https://github.com/ARMmbed/mbedtls) for Raspberry Pi or other ARM computers.)
+* [mbedtls](https://github.com/Synss/python-mbedtls/) (Download source code, *sudo pip3 install -r requirements.txt* and then *sudo python3 ./setup.py install*)
 
 # Installation & Usage
 
