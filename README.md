@@ -39,7 +39,7 @@ Python Modules:
 * threading
 * fileinput
 * numpy
-* cv2 (Also known as OpenCV. You may have to compile from source depending on your setup. For a Raspberry Pi, use [this guide](https://www.pyimagesearch.com/2018/09/26/install-opencv-4-on-your-raspberry-pi/) starting from step 2 BUT skip the section related to virtual environments. This will take about 2 hours and a few GBs of space.
+* cv2 (Also known as OpenCV. You may have to compile from source depending on your setup. For a Raspberry Pi, use [this guide](https://www.pyimagesearch.com/2018/09/26/install-opencv-4-on-your-raspberry-pi/) starting from step 2 and (optional but reccomended) skip anything related to virtual environments. This will take 2-3 hours to compile and a few GBs of space.
 * mbedtls (python-mbedtls, may also have to be compiled from source. Use [this](https://github.com/ARMmbed/mbedtls) for Raspberry Pi or other ARM computers.)
 
 # Installation & Usage
@@ -53,11 +53,11 @@ Then, to start the program:
 * ./harmonizeproject.py -CommandLineArgumentsGoHere
 * Ctrl+A , Ctrl+D
 * Feel free to disconnect from the device. To resume the terminal use       *screen -r
-* Press ENTER to safely stop the program. Using Ctrl+C works but does not formally end the entertainment streaming session for an additional 10 seconds, rendering the lights uncommunicable.
+* Press ENTER to safely stop the program. Using Ctrl+C works but does not formally end the entertainment streaming session and thus, for an additional 10 seconds, the lights are rendered uncommunicable.
 
 Command line arguments:
-* -v (verbose)
-* -g {#} Use specific entertainment group number
+* -v            Display verbose output
+* -g #          Use specific entertainment group number (#)
 
 Configurable values within the scripts:
 * 'breadth' within function 'averageimage' - determines the % of the edges of the screen to use in calculations. Default is 15%.
