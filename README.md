@@ -4,7 +4,7 @@ Harmonize project is a low latency video analysis and pass-through application b
 
 [![Harmonize Project Demo Video](http://img.youtube.com/vi/OkyUntgiYzQ/0.jpg)](http://www.youtube.com/watch?v=OkyUntgiYzQ "Harmonize Project Demo Video")
 
-Due to litigation with Signify (owner of the Philips Hue brand), our website was taken down. Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Signify or Philips Hue.
+Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Signify or Philips Hue. Hue and Philips Hue are trademarks of Signify.
 
 # Features:
 * Light color and intensity changes based on pixels in its relative set location
