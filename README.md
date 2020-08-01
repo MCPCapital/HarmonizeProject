@@ -4,7 +4,7 @@ Harmonize project is a low latency video analysis and pass-through application b
 
 Currently in development - Expected release in August 2020
 
-Due to litigation with Signify (Owner of the Philips Hue brand), our website was taken down. Harmonize Project (formerly known as Harmonize Hue) - This project has no affiliation with Signify or Philips Hue.
+Due to litigation with Signify (Owner of the Philips Hue brand), our website was taken down. Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Signify or Philips Hue.
 
 # Features:
 * Low Latency loop-through HDMI output
