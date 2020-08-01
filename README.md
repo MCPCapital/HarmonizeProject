@@ -1,4 +1,4 @@
-Harmonize Project for Philips Hue 
+Harmonize Project *for Philips Hue*
 ============================
 Harmonize Project is a low latency video analysis and pass-through application built in Python which alters Philips Hue lights based on their location relative to a screen; creating an ambient lighting effect and expanding content past the boundries of a screen. Watch the demo below!
 
