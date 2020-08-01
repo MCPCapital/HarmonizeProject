@@ -38,8 +38,8 @@ Python Modules: (sudo pip3 install *modulename*)
 * threading
 * fileinput
 * numpy
-* cv2 (OpenCV) You may have to compile from source depending on your setup. First though, try installing it with pip *sudo pip3 install opencv-python*
-* mbedtls (python-mbedtls, may also have to be compiled from source. Use [this](https://github.com/ARMmbed/mbedtls) for Raspberry Pi or other ARM computers.)
+* cv2 (OpenCV) You may have to compile from source depending on your setup. First though, try installing it with pip *sudo pip3 install opencv-python* and also install it via apt to pick up all the dependant libraries *sudo apt install python3-opencv*
+* mbedtls (python-mbedtls) May also have to be compiled from source. Use [this](https://github.com/ARMmbed/mbedtls) for Raspberry Pi or other ARM computers.)
 
 # Installation & Usage
 
