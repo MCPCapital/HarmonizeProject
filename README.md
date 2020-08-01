@@ -63,3 +63,9 @@ Configurable values within the scripts:
 * 'breadth' within function 'averageimage' - determines the % of the edges of the screen to use in calculations. Default is 15%.
 * 'if ct % 1 == 0:' within funciton 'cv2input_to_buffer' - Edit to skip frames if performance is poor on your device. 
 * 'time.sleep(0.005)' within funciton 'buffer_to_light' - Determines how frequently messages are sent to the bridge. Keep in mind the rest of the function takes some time to run in addition to this sleep command. Bridge requests are capped by Philips at about 100 if I recall correctly.
+
+# Contributions & License
+
+Pull requests are encouraged and accepted! Whether you have some code changes or enhancements to the readme, feel free to open a pull request.
+
+Please see the license file at the root level of the source code for the applicable license.
