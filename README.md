@@ -51,8 +51,7 @@ Python Modules: (sudo pip3 install *modulename*)
 
 # Installation & Usage
 
-Perform this once:
-* git clone https://github.com/MCPCapital/harmonizeproject.git
+Download the latest script from https://github.com/MCPCapital/harmonizeproject/releases
 
 Set up your entertainment area:
 * Hue App -> Settings -> Entertainment Areas
