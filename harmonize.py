@@ -91,7 +91,7 @@ if hueip is None:
 verbose("I found the Bridge on", hueip)
 
 
-verbose("Checking if hueproject is registered on the bridge... (Looking for client.json)") #Check if the username and client key have already been saved
+verbose("Checking if Harmonize is registered on the bridge... (Looking for client.json)") #Check if the username and client key have already been saved
 
 def register():
     print("Device not registered on bridge")
