@@ -67,8 +67,11 @@ Set up your entertainment area:
 To start the program:
 * screen
 * ./harmonizeproject.py -CommandLineArgumentsGoHere
-* Ctrl+A , Ctrl+D
-* Feel free to disconnect from the device. To resume the terminal use       *screen -r
+
+* if you have not set up a bridge before, this program will attempt to register you on the bridge
+* If multiple bridges are found, you will be given the option to select one
+* If multiple entertainment areas are found, you will be given the option to select one. You can also enter this as a command line argument.
+* Enter Ctrl+A and then Ctrl+D; then, feel free to disconnect from the device. To resume the terminal use       *screen -r
 * Press ENTER to safely stop the program. Using Ctrl+C works but does not formally end the entertainment streaming session and thus, for an additional 10 seconds, the lights are rendered uncommunicable.
 
 Command line arguments:
