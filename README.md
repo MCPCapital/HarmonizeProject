@@ -46,15 +46,20 @@ Python Modules:
 
 Perform this once:
 * git clone https://github.com/MCPCapital/harmonizeproject.git
-* cd harmonizeproject
 
 Then, to start the program:
-* ./harmonizeproject.py -c -a -s 
-
+* cd harmonizeproject
+* screen
+* ./harmonizeproject.py -CommandLineArgumentsGoHere
+* Ctrl+A , Ctrl+D
+* Feel free to disconnect from the device. To resume the terminal use       *screen -r
+* Press ENTER to safely stop the program. Using Ctrl+C works but does not formally end the entertainment streaming session for an additional 10 seconds, rendering the lights uncommunicable.
 
 Command line arguments:
 * -v (verbose)
 * -g {#} Use specific entertainment group number
+
+
 
 Configurable values within the scripts:
 * 'breadth' within function 'averageimage' - determines the % of the edges of the screen to use in calculations. Default is 15%.
