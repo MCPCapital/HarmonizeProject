@@ -30,6 +30,7 @@ Software: (sudo apt install *packagename*)
 * screen (if you intend to run this on a headless server; recommended)
 * v4l2 (You may need a different driver based on your HDMI->USB Capture card. Information on drivers for cheap video cards is [here](https://linuxtv.org/wiki/index.php/Easycap#Making_it_work_4)). For Raspberry Pi run *rpi-update* to update to newer kernels which include this driver, then *sudo modprobe bcm2835-v4l2*   [More info here](https://www.raspberrypi.org/forums/viewtopic.php?f=43&t=62364&sid=239323676f4f6952da3d5c38e2ac9575)
 I may be missing something - if you discover another dependency, please open an issue and I shall add it to the list.
+Run *sudo apt clean* and *sudo apt autoremove* to clear up some space after installing dependencies.
 
 Python Modules: (sudo pip3 install *modulename*)
 * sys
