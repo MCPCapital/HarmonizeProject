@@ -15,7 +15,7 @@ Currently in development - Expected release in August 2020. Due to litigation wi
 Hardware: (Tested on Raspberry Pi 4B)
 * RAM: 256MB Free Minimum (512MB reccommended)
 * CPU: 1.5GHz+, 4 Cores strongly reccomended due to running three simultaneous threads.
-* HDMI Splitter (Must be able to output 4k & 1080/720p simultaneously) [Here is a good one.](https://www.amazon.com/gp/product/B07YTWV8PR/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
+* HDMI Splitter (Must be able to output 4k & 1080/720p simultaneously) [Here is a good one for $25](https://www.amazon.com/gp/product/B07YTWV8PR/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1), though it breaks HDR.
 * USB3.0 HDMI Capture Card (Capable of capturing 720/1080p; delay should be 50ms or under.) [I got this one for $45.](https://www.amazon.com/gp/product/B07Z7RNDBZ/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1) A similar one should be fine.
 
 Software:
