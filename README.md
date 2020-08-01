@@ -7,9 +7,8 @@ Harmonize project is a low latency video analysis and pass-through application b
 Currently in development - Expected release in August 2020. Due to litigation with Signify (owner of the Philips Hue brand), our website was taken down. Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Signify or Philips Hue.
 
 # Features:
-* Low Latency loop-through HDMI output
-* Location based light changes
-* Streaming to Hue Lights via Entertainment API
+* Light color and intensity changes based on pixels in its relative set location
+* Video -> Light latency of 80ms via Streaming to Hue Lights via Entertainment API
 * Sending 50-75 color updates per second
 
 # Requirements 
@@ -17,7 +16,7 @@ Hardware: (Tested on Raspberry Pi 4B)
 * RAM: 256MB Free Minimum (512MB reccommended)
 * CPU: 1.5GHz+, 4 Cores strongly reccomended due to running three simultaneous threads.
 * HDMI Splitter (Must be able to output 4k & 1080/720p simultaneously) [Here is a good one.](https://www.amazon.com/gp/product/B07YTWV8PR/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
-* USB3.0 HDMI Capture Card (Capable of capturing 720/1080p) [I got this one for $45.](https://www.amazon.com/gp/product/B07Z7RNDBZ/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1) A similar one should be fine.
+* USB3.0 HDMI Capture Card (Capable of capturing 720/1080p; delay should be 50ms or under.) [I got this one for $45.](https://www.amazon.com/gp/product/B07Z7RNDBZ/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1) A similar one should be fine.
 
 Software:
 * python3 (Project written and tested on 3.6)
@@ -67,7 +66,7 @@ Command line arguments:
 Configurable values within the scripts:
 * 'breadth' within function 'averageimage' - determines the % of the edges of the screen to use in calculations. Default is 15%.
 * 'if ct % 1 == 0:' within funciton 'cv2input_to_buffer' - Edit to skip frames if performance is poor on your device. 
-* 'time.sleep(0.005)' within funciton 'buffer_to_light' - Determines how frequently messages are sent to the bridge. Keep in mind the rest of the function takes some time to run in addition to this sleep command. Bridge requests are capped by Philips at about 100 if I recall correctly.
+* 'time.sleep(0.005)' within funciton 'buffer_to_light' - Determines how frequently messages are sent to the bridge. Keep in mind the rest of the function takes some time to run in addition to this sleep command. Bridge requests are capped by Philips at about 60/s and the rest are dropped.
 
 # Contributions & License
 
