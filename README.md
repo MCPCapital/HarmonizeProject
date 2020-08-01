@@ -15,7 +15,7 @@ Due to litigation with Signify (owner of the Philips Hue brand), our website was
 # Requirements 
 Hardware: (Tested on Raspberry Pi 4B)
 * RAM: 512MB Minimum (No swap needed)
-* CPU: 1GHz minimum, 4 Cores strongly reccomended (Application runs 3 threads and leaves 1 core to handle other tasks.)
+* CPU: 1GHz 2 Cores minimum, 1.5GHz+ 4 Cores strongly reccomended due to running three simultaneous threads.
 * HDMI Splitter (Must be able to output 4k & 1080/720p simultaneously) [Here is a good one.](https://www.amazon.com/gp/product/B07YTWV8PR/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
 * USB3.0 HDMI Capture Card (Capable of capturing 720/1080p) [I got this one for $45.](https://www.amazon.com/gp/product/B07Z7RNDBZ/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1) A similar one should be fine.
 
@@ -58,8 +58,6 @@ Then, to start the program:
 Command line arguments:
 * -v (verbose)
 * -g {#} Use specific entertainment group number
-
-
 
 Configurable values within the scripts:
 * 'breadth' within function 'averageimage' - determines the % of the edges of the screen to use in calculations. Default is 15%.
