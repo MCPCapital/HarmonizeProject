@@ -21,6 +21,7 @@ Hardware: (Tested on Raspberry Pi 4B)
 Software:
 * python3 (Project written and tested on 3.6)
 * python3-dev
+* python3-opencv
 * pip3
 * screen (if you intend to run this on a headless server; recommended)
 * v4l2 (You may need a different driver based on your HDMI->USB Capture card. Information on drivers for cheap video cards is [here](https://linuxtv.org/wiki/index.php/Easycap#Making_it_work_4)). For Raspberry Pi run *rpi-update* to update to newer kernels which include this driver, then *sudo modprobe bcm2835-v4l2*   [More info here](https://www.raspberrypi.org/forums/viewtopic.php?f=43&t=62364&sid=1ac3bbb5a0f7ef27d3d693d6f2a0c391&start=525)
@@ -38,7 +39,7 @@ Python Modules: (sudo pip3 install *modulename*)
 * threading
 * fileinput
 * numpy
-* cv2 (OpenCV) You may have to compile from source depending on your setup. First though, try installing it with pip *sudo pip3 install opencv-python* and also install it via apt to pick up all the dependant libraries *sudo apt install python3-opencv*
+* cv2 (opencv-python) You may have to compile from source depending on your setup.
 * mbedtls (python-mbedtls) May also have to be compiled from source. Use [this](https://github.com/ARMmbed/mbedtls) for Raspberry Pi or other ARM computers.)
 
 # Installation & Usage
