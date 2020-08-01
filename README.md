@@ -55,9 +55,10 @@ Perform this once:
 * git clone https://github.com/MCPCapital/harmonizeproject.git
 
 Set up your entertainment area:
-* Step 1
-* Step 2
-Image of entertainment area
+* Hue App -> Settings -> Entertainment Areas
+* Harmonize will use the **height** and the **horizontal position** of lights in relation to the TV. **The depth/vertial position are currently ignored**
+* In the example below, the light on the left is to the left of the TV at the bottom of it. The light on the right is on the right side of the TV at the top of it.
+![Entertainment Area](http://harmonizeproject.matthewpilsbury.com/entarea.jpg)
 
 To start the program:
 * cd harmonizeproject
