@@ -47,7 +47,12 @@ Python Modules:
 Perform this once:
 * git clone https://github.com/MCPCapital/harmonizeproject.git
 
-Then, to start the program:
+Set up your entertainment area:
+* Step 1
+* Step 2
+Image of entertainment area
+
+To start the program:
 * cd harmonizeproject
 * screen
 * ./harmonizeproject.py -CommandLineArgumentsGoHere
