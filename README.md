@@ -49,7 +49,12 @@ Python Modules: (sudo pip3 install *modulename*)
 * cv2 (opencv-python==3.4.6.27 for Raspberry Pi) You may have to compile from source depending on your setup.
 * [mbedtls](https://github.com/Synss/python-mbedtls/) (Download source code, *sudo pip3 install -r requirements.txt* and then *sudo python3 ./setup.py install*)
 
-# Installation & Usage
+# Setup & Usage
+
+Hardware Setup:
+* Connect Video Device (PS4, FireStick, etc.) to the splitter input. 
+* Connect an HDMI cable from the 4k output to the TV; and from Output 2 (downscaled) to the video capture card connected to your device.
+* Ensure your splitter's switches are set to downscale Output 2 to 1080 or 720p!
 
 Download the latest script from https://github.com/MCPCapital/harmonizeproject/releases
 
