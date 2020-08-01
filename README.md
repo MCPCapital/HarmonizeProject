@@ -6,7 +6,7 @@ Currently in development - Expected release in August 2020
 
 Due to litigation with Signify (owner of the Philips Hue brand), our website was taken down. Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Signify or Philips Hue.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/OkyUntgiYzQ" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+[![Harmonize Project Demo Video](http://img.youtube.com/vi/OkyUntgiYzQ/0.jpg)](http://www.youtube.com/watch?v=OkyUntgiYzQ "Harmonize Project Demo Video")
 
 # Features:
 * Low Latency loop-through HDMI output
