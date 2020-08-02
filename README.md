@@ -19,7 +19,10 @@ Hardware: (Tested on Raspberry Pi 4B)
 * USB3.0 HDMI Capture Card (Capable of capturing 720/1080p; delay should be 50ms or under.) [I got this when it was $45.](https://www.amazon.com/gp/product/B07Z7RNDBZ/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1) A similar one should be fine. These are untested: [Panoraxy](https://www.amazon.com/Panoraxy-Capture-1080PFHD-Broadcast-Camcorder/dp/B088PYDJ22/ref=sr_1_21?dchild=1&keywords=hdmi+to+usb+3.0+capture&qid=1596386201&refinements=p_36%3A1253504011%2Cp_85%3A2470955011&rnid=2470954011&rps=1&s=electronics&sr=1-21) | [Aliexpress - Cards that have this shape/style tend to perform well.](https://www.aliexpress.com/item/4000834496145.html?spm=a2g0o.productlist.0.0.27a14df5Wc5Qoc&algo_pvid=e745d484-c811-4d2e-aebd-1403e862f148&algo_expid=e745d484-c811-4d2e-aebd-1403e862f148-15&btsid=0ab50f4415963867142714634e7e8e&ws_ab_test=searchweb0_0,searchweb201602_,searchweb201603_) | [LEADNOVO (Questionable quality but cheap)](https://www.amazon.com/LEADNOVO-actualizaci%C3%B3n-adquisici%C3%B3n-definici%C3%B3n-transmisi%C3%B3n/dp/B0899YQ6M2/ref=cm_cr_arp_d_product_top?ie=UTF8)
 
 APT-retrievable software: 
-* sudo apt install git python3 pip3 python3-dev libpython-dev python3-opencv libqtgui4 libqt4-test libgstreamer1.0-0 libjpeg62 libjpeg62-turbo-dev libmbedtls12 libmbedtls-dev screen autoconf gettext libtool autopoint
+* sudo apt-get update
+* sudo apt-get dist-upgrade
+* sudo apt-get upgrade
+sudo apt install git python3 pip3 python3-dev libpython-dev python3-opencv libqtgui4 libqt4-test libgstreamer1.0-0 libjpeg62 libjpeg62-turbo-dev libmbedtls12 libmbedtls-dev screen autoconf gettext libtool autopoint
 
 Python Modules: (http_parser and python-mbedtls)
 * sudo pip3 install http_parser 
@@ -59,10 +62,10 @@ Set up your entertainment area:
 
 To start the program:
 * screen
-* ./harmonizeproject.py -CommandLineArgumentsGoHere
+* ./harmonizeproject.py
 
-* if you have not set up a bridge before, this program will attempt to register you on the bridge
-* If multiple bridges are found, you will be given the option to select one
+* If you have not set up a bridge before, the program will attempt to register you on the bridge. You will have 45 second to push the button on the bridge.
+* If multiple bridges are found, you will be given the option to select one. You will have to do this every time if you have multiple bridges (for now).
 * If multiple entertainment areas are found, you will be given the option to select one. You can also enter this as a command line argument.
 * Enter Ctrl+A and then Ctrl+D; then, feel free to disconnect from the device. To resume the terminal use       *screen -r
 * Press ENTER to safely stop the program. Using Ctrl+C works but does not formally end the entertainment streaming session and thus, for an additional 10 seconds, the lights are rendered uncommunicable.
