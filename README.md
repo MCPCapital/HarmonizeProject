@@ -22,7 +22,7 @@ APT-retrievable software:
 * sudo apt-get update
 * sudo apt-get dist-upgrade
 * sudo apt-get upgrade
-sudo apt install git python3 pip3 python3-dev libpython-dev python3-opencv libqtgui4 libqt4-test libgstreamer1.0-0 libjpeg62 libjpeg62-turbo-dev libmbedtls12 libmbedtls-dev screen autoconf gettext libtool autopoint
+* sudo apt install git python3 pip3 python3-dev libpython-dev python3-opencv libqtgui4 libqt4-test libgstreamer1.0-0 libjpeg62 libjpeg62-turbo-dev libmbedtls12 libmbedtls-dev screen autoconf gettext libtool autopoint
 
 Python Modules: (http_parser and python-mbedtls)
 * sudo pip3 install http_parser 
