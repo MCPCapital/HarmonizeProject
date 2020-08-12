@@ -15,4 +15,5 @@ cd python-mbedtls
 pip3 install -r requirements.txt
 python3 ./setup.py install
 echo "############### MBEDTLS DONE ###############" 
-exit N
+echo "############### FULLY COMPLETE ###############" 
+exit
