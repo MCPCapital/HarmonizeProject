@@ -31,7 +31,29 @@ Hardware Setup:
 
 Download the latest scripts via 'git clone https://github.com/MCPCapital/harmonizeproject'
 
-**NEW!** To install all relevant dependencies, run ./setup.sh as root or by using sudo. Expect this to take up about 500MB, and up to an hour.
+**NEW!** To install all relevant dependencies, run ./setup.sh as root or by using sudo. Expect this to take up about 500MB, and up to an hour. If this does not work for you, (it is a work in progress at the moment) please follow the instructions below.
+
+Installing APT and PIP Dependencies: (Use sudo or run as root.)
+```
+apt update --yes
+apt dist-upgrade --yes
+apt upgrade --yes
+apt install --yes git python3 python3-pip python3-requests python3-dev libpython-dev libqtgui4 libqt4-test libgstreamer1.0-0 libjpeg62-turbo-dev libmbedtls12 libmbedtls-dev screen
+pip3 install setuptools cython certifi contextlib2 enum34 pathlib2 readme_renderer 
+```
+
+Installing OpenCV for Python: (Use sudo or run as root.) (If this does not work, you may have to complie from source. Follow-up on this pending.)
+```
+apt install python3-opencv
+```
+
+Installing python-mbedtls: (Use sudo or run as root.) (If this does not work, you may have to complie from source. Follow-up on this pending.)
+```
+git clone https://github.com/Synss/python-mbedtls
+cd python-mbedtls
+pip3 install -r requirements.txt
+python3 ./setup.py install
+```
 
 Set up your entertainment area:
 * Hue App -> Settings -> Entertainment Areas
@@ -41,7 +63,7 @@ Set up your entertainment area:
 
 To start the program:
 * screen
-* ./harmonizeproject.py
+* ./harmonize.py
 
 * If you have not set up a bridge before, the program will attempt to register you on the bridge. You will have 45 second to push the button on the bridge.
 * If multiple bridges are found, you will be given the option to select one. You will have to do this every time if you have multiple bridges (for now).
