@@ -6,8 +6,7 @@ fi
 apt update --yes
 apt dist-upgrade --yes
 apt upgrade --yes
-apt install --yes git python3 python3-pip python3-dev libpython-dev python3-opencv libqtgui4 libqt4-test libgstreamer1.0-0 libjpeg62-turbo-dev libmbedtls12 libmbedtls-dev screen
-pip3 install  http_parser
+apt install --yes git python3 python3-pip python3-dev libpython-dev python3-opencv python3-http-parser libqtgui4 libqt4-test libgstreamer1.0-0 libjpeg62-turbo-dev libmbedtls12 libmbedtls-dev screen
 git clone https://github.com/Synss/python-mbedtls
 cd python-mbedtls
 pip3 install -r requirements.txt
