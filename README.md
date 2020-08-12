@@ -29,7 +29,8 @@ Hardware Setup:
 * Ensure your splitter's switches are set to downscale Output 2 to 1080 or 720p!
 ![Connection Diagram](http://harmonizeproject.matthewpilsbury.com/diagram.png)
 
-Download the latest scripts via 'git clone https://github.com/MCPCapital/harmonizeproject'
+Download the latest scripts via:
+`git clone https://github.com/MCPCapital/harmonizeproject`
 
 **NEW!** To install all relevant dependencies, run ./setup.sh as root or by using sudo. Expect this to take up about 500MB, and up to an hour. If this does not work for you, (it is a work in progress at the moment) please follow the instructions below.
 
