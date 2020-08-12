@@ -6,7 +6,8 @@ fi
 apt update --yes
 apt dist-upgrade --yes
 apt upgrade --yes
-apt install --yes git python3 python3-pip python3-dev libpython-dev python3-opencv python3-http-parser libqtgui4 libqt4-test libgstreamer1.0-0 libjpeg62-turbo-dev libmbedtls12 libmbedtls-dev screen
+apt install --yes git python3 python3-pip python3-requests python3-dev libpython-dev libqtgui4 libqt4-test libgstreamer1.0-0 libjpeg62-turbo-dev libmbedtls12 libmbedtls-dev screen
+pip3 install setuptools cython certifi contextlib2 enum34 pathlib2 readme_renderer 
 git clone https://github.com/Synss/python-mbedtls
 cd python-mbedtls
 pip3 install -r requirements.txt
