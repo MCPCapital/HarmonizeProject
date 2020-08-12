@@ -39,7 +39,7 @@ Installing APT Dependencies: (Use sudo or run as root.)
 apt update --yes
 apt dist-upgrade --yes
 apt upgrade --yes
-apt install --yes git python3 python3-pip python3-requests python3-dev libpython-dev libqtgui4 libqt4-test libgstreamer1.0-0 libjpeg62-turbo-dev libmbedtls12 libmbedtls-dev screen
+apt install --yes git python3 python3-pip python3-requests python3-dev python-http-parser libpython-dev libqtgui4 libqt4-test libgstreamer1.0-0 libjpeg62-turbo-dev libmbedtls12 libmbedtls-dev screen
 apt install --yes python3-opencv
 ```
 If python3-opencv installation fails, you may have to compile from source. [Follow this guide.](https://pimylifeup.com/raspberry-pi-opencv/)
