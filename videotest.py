@@ -1,4 +1,8 @@
+#!/usr/bin/python3
+
 import cv2
+
+print("Press ESC to exit.")
 
 cv2.namedWindow("preview")
 vc = cv2.VideoCapture(0)
