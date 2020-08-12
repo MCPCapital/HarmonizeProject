@@ -16,8 +16,8 @@ Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Sign
 
 # Requirements 
 Hardware: (Tested on Raspberry Pi 4B)
-* RAM: 256MB Free Minimum (512MB reccommended)
-* CPU: 1.5GHz+, 4 Cores strongly reccomended due to running three simultaneous threads.
+* RAM: 256MB Free Minimum (512MB recommended)
+* CPU: 1.5GHz+, 4 Cores strongly recommended due to running three simultaneous threads.
 * HDMI Splitter (Must be able to output 4k & 1080/720p simultaneously) [Here is a good one for $25](https://www.amazon.com/gp/product/B07YTWV8PR/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1), though it breaks HDR when downscaling output 2. The goal here is one output of 4K and another output of 1080/720p.
 * USB3.0 HDMI Capture Card (Capable of capturing 720/1080p; delay should be 50ms or under.) [I got this when it was $45.](https://www.amazon.com/gp/product/B07Z7RNDBZ/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1) A similar one should be fine. These are untested: [Panoraxy](https://www.amazon.com/Panoraxy-Capture-1080PFHD-Broadcast-Camcorder/dp/B088PYDJ22/ref=sr_1_21?dchild=1&keywords=hdmi+to+usb+3.0+capture&qid=1596386201&refinements=p_36%3A1253504011%2Cp_85%3A2470955011&rnid=2470954011&rps=1&s=electronics&sr=1-21) | [Aliexpress (This shape/style tends to perform well.)](https://www.aliexpress.com/item/4000834496145.html?spm=a2g0o.productlist.0.0.27a14df5Wc5Qoc&algo_pvid=e745d484-c811-4d2e-aebd-1403e862f148&algo_expid=e745d484-c811-4d2e-aebd-1403e862f148-15&btsid=0ab50f4415963867142714634e7e8e&ws_ab_test=searchweb0_0,searchweb201602_,searchweb201603_)
 
@@ -42,9 +42,9 @@ apt upgrade --yes
 apt install --yes git python3 python3-pip python3-requests python3-dev libpython-dev libqtgui4 libqt4-test libgstreamer1.0-0 libjpeg62-turbo-dev libmbedtls12 libmbedtls-dev screen
 apt install --yes python3-opencv
 ```
-If python3-opencv installation fails, you may have to complie from source. [Follow this guide.](https://pimylifeup.com/raspberry-pi-opencv/)
+If python3-opencv installation fails, you may have to compile from source. [Follow this guide.](https://pimylifeup.com/raspberry-pi-opencv/)
 
-Installing python-mbedtls: (Use sudo or run as root.) (If this does not work, you may have to complie from source. Follow-up on this pending.)
+Installing python-mbedtls: (Use sudo or run as root.) (If this does not work, you may have to compile from source. Follow-up on this pending.)
 ```
 git clone https://github.com/Synss/python-mbedtls
 cd python-mbedtls
@@ -80,7 +80,7 @@ Configurable values within the script:
 # Troubleshooting
 
 * "Import Error" - Ensure you have all the dependencies installed. Run through the manual dependency install instructions above.
-* No video input // lights are all dim gray - Run 'python3 ./videotest.py' to see if your device (via OpenCV) can propery read the video input.
+* No video input // lights are all dim gray - Run 'python3 ./videotest.py' to see if your device (via OpenCV) can properly read the video input.
 
 # Contributions & License
 
