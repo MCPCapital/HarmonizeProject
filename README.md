@@ -7,7 +7,7 @@ Harmonize Project is a low latency video analysis and pass-through application b
 
 [![Harmonize Project Demo Video](http://img.youtube.com/vi/OkyUntgiYzQ/0.jpg)](http://www.youtube.com/watch?v=OkyUntgiYzQ "Harmonize Project Demo Video")
 
-Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Signify or Philips Hue. Hue and Philips Hue are trademarks of Signify. [![Why is this here?](https://img.shields.io/badge/Why%20is%20this%20here%3F-Find%20out-blue)](https://www.wipo.int/amc/en/domains/search/text.jsp?case=D2020-0278)
+Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Signify or Philips Hue. Hue and Philips Hue are trademarks of Signify.
 
 # Features:
 * Light color and intensity changes based on pixels in its relative set location
@@ -40,9 +40,9 @@ apt update --yes
 apt dist-upgrade --yes
 apt upgrade --yes
 apt install --yes git python3 python3-pip python3-requests python3-dev libpython-dev libqtgui4 libqt4-test libgstreamer1.0-0 libjpeg62-turbo-dev libmbedtls12 libmbedtls-dev screen
-apt --yes install python3-opencv
+apt install --yes python3-opencv
 ```
-(If python3-opencv installation fails, you may have to complie from source. [Follow this guide](https://pimylifeup.com/raspberry-pi-opencv/).)
+If python3-opencv installation fails, you may have to complie from source. [Follow this guide.](https://pimylifeup.com/raspberry-pi-opencv/)
 
 Installing python-mbedtls: (Use sudo or run as root.) (If this does not work, you may have to complie from source. Follow-up on this pending.)
 ```
@@ -54,7 +54,7 @@ python3 ./setup.py install
 
 Set up your entertainment area:
 * Hue App -> Settings -> Entertainment Areas
-* Harmonize will use the **height** and the **horizontal position** of lights in relation to the TV. **The depth/vertial position are currently ignored.**
+* Harmonize will use the **height** and the **horizontal position** of lights in relation to the TV. **The depth/vertical position are currently ignored.**
 * In the example below, the light on the left is to the left of the TV at the bottom of it. The light on the right is on the right side of the TV at the top of it.
 ![Example Entertainment Area](http://harmonizeproject.matthewpilsbury.com/examplearea1.jpg)
 
@@ -79,7 +79,7 @@ Configurable values within the script:
 
 # Troubleshooting
 
-* "Import Error" - Ensure you have all the dependencies installed. Run ./setup.sh
+* "Import Error" - Ensure you have all the dependencies installed. Run through the manual dependency install instructions above.
 * No video input // lights are all dim gray - Run 'python3 ./videotest.py' to see if your device (via OpenCV) can propery read the video input.
 
 # Contributions & License
