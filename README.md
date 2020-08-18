@@ -31,8 +31,9 @@ Hardware Setup:
 
 Download the latest scripts via:
 `git clone https://github.com/MCPCapital/harmonizeproject`
+`cd harmonizeproject`
 
-**NEW!** To install all relevant dependencies, run ./setup.sh as root or by using sudo. Expect this to take up about 500MB, and up to an hour. If this does not work for you, (it is a work in progress at the moment) please follow the instructions below.
+**NEW!** To install all relevant dependencies, run ./setup.sh as root or by using sudo. **Be sure to watch for errors!** Expect this to take up about 500MB, and up to an hour. If this does not work for you or your encounter errors, (it is a work in progress at the moment) please follow the instructions below.
 
 Installing APT Dependencies: (Use sudo or run as root.)
 ```
@@ -60,9 +61,10 @@ Set up your entertainment area:
 
 To start the program:
 * screen
+* cd harmonizeproject
 * ./harmonize.py
 
-* If you have not set up a bridge before, the program will attempt to register you on the bridge. You will have 45 second to push the button on the bridge.
+* If you have not set up a bridge before, the program will attempt to register you on the bridge. You will have 45 second to push the button on the bridge. *Current Bug - After registering, the script will store the clientdata but fail. Workaround - Simply run the script again.
 * If multiple bridges are found, you will be given the option to select one. You will have to do this every time if you have multiple bridges (for now).
 * If multiple entertainment areas are found, you will be given the option to select one. You can also enter this as a command line argument.
 * Enter Ctrl+A and then Ctrl+D; then, feel free to disconnect from the device. To resume the terminal use       *screen -r
