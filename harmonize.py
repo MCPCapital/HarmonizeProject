@@ -328,7 +328,7 @@ try:
         t = threading.Thread(target=cv2input_to_buffer)
         t.start()
         threads.append(t)
-        time.sleep(.25)
+        time.sleep(.75)
         verbose("Starting image averager...")
         t = threading.Thread(target=averageimage)
         t.start()
