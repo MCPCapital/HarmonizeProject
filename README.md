@@ -90,6 +90,6 @@ Pull requests are encouraged and accepted! Whether you have some code changes or
 
 Please see the license file at the root level of the source code for the applicable license.
 
-Development credits to Matthew C. Pilsbury (MCP Capital, LLC) and Ares N. Vlahos.
+Development credits to [Matthew C. Pilsbury](https://matthewpilsbury.com) ([MCP Capital, LLC](http://mcpcapital.net)) and Ares N. Vlahos.
 
 [![licensebuttons by-nc](https://licensebuttons.net/l/by-nc/3.0/88x31.png)](https://github.com/MCPCapital/harmonizeproject/LICENSE.md)  [![ForTheBadge makes-people-smile](http://ForTheBadge.com/images/badges/makes-people-smile.svg)](https://matthewpilsbury.com) [![forthebadge](https://forthebadge.com/images/badges/pretty-risque.svg)](https://matthewpilsbury.com) [![forthebadge](https://forthebadge.com/images/badges/uses-badges.svg)](https://forthebadge.com) [![forthebadge](https://forthebadge.com/images/badges/built-with-resentment.svg)](https://www.wipo.int/amc/en/domains/search/text.jsp?case=D2020-0278)
