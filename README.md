@@ -37,16 +37,8 @@ Download the latest scripts via:
 `git clone https://gitlab.com/MCPCapital/harmonizeproject.git`
 `cd harmonizeproject`
 
-**NEW!** To install all relevant dependencies, run ./setup.sh as root or by using sudo. **Be sure to watch for errors!** Expect this to take up about 500MB, and up to an hour. If this does not work for you or your encounter errors, (it is a work in progress at the moment) please follow the instructions below.
+**NEW!** To install all relevant dependencies, run ./setup.sh as root or by using sudo. **Be sure to watch for errors!** Expect this to take up about 500MB, and up to an hour.
 
-Installing APT Dependencies: (Use sudo or run as root.)
-```
-apt update --yes
-apt dist-upgrade --yes
-apt upgrade --yes
-apt install --yes git python3 python3-pip python3-requests python3-dev python-http-parser libpython-dev libqtgui4 libqt4-test libgstreamer1.0-0 libjpeg62-turbo-dev libmbedtls12 libmbedtls-dev screen
-apt install --yes python3-opencv
-```
 If python3-opencv installation fails, you may have to compile from source. [Follow this guide.](https://pimylifeup.com/raspberry-pi-opencv/)
 
 Set up your entertainment area:
