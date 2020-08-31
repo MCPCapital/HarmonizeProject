@@ -7,8 +7,9 @@ Harmonize Project is a low latency video analysis and pass-through application b
 
 [![Harmonize Project Demo Video](http://img.youtube.com/vi/OkyUntgiYzQ/0.jpg)](http://www.youtube.com/watch?v=OkyUntgiYzQ "Harmonize Project Demo Video")
 
+[![GitHub Deleted our Account](https://matthewpilsbury.com/github-deleted.PNG)](#)
+
 GitHub deleted our account at 250 stars! Sorry for the interuption - we lost about a week of work, but this will be the offical home of Harmonize Project.
- [![GitHub Deleted our Account](https://matthewpilsbury.com/github-deleted.PNG)](#)
 
 Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Signify or Philips Hue. Hue and Philips Hue are trademarks of Signify.
 
