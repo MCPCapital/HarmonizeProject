@@ -71,6 +71,7 @@ Configurable values within the script:
 
 * "Import Error" - Ensure you have all the dependencies installed. Run through the manual dependency install instructions above.
 * No video input // lights are all dim gray - Run 'python3 ./videotest.py' to see if your device (via OpenCV) can properly read the video input.
+* Many questions are answered on our Reddit release thread [here.](https://www.reddit.com/r/Hue/comments/i1ngqt/release_harmonize_project_sync_hue_lights_with/) New issues should be raised on GitLab.
 
 # Contributions & License
 
