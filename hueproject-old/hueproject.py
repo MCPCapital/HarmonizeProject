@@ -1,16 +1,4 @@
 #!/usr/bin/python3
-
-########################################
-########## Harmonize Project ###########
-##########        by         ###########
-########## MCP Capital, LLC  ###########
-########################################
-#Github.com/MCPCapital/harmonizeproject#
-########################################
-### -v to enable verbose messages     ##
-### -g #  to pre-select a group number##
-########################################
-
 import sys
 from http_parser.parser import HttpParser
 import argparse
@@ -91,7 +79,7 @@ if hueip is None:
 verbose("I found the Bridge on", hueip)
 
 
-verbose("Checking if Harmonize is registered on the bridge... (Looking for client.json)") #Check if the username and client key have already been saved
+verbose("Checking if hueproject is registered on the bridge... (Looking for client.json)") #Check if the username and client key have already been saved
 
 def register():
     print("Device not registered on bridge")
@@ -328,7 +316,7 @@ try:
         t = threading.Thread(target=cv2input_to_buffer)
         t.start()
         threads.append(t)
-        time.sleep(.75)
+        time.sleep(.25)
         verbose("Starting image averager...")
         t = threading.Thread(target=averageimage)
         t.start()
