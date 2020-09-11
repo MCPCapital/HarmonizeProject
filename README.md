@@ -27,21 +27,22 @@ Hardware: (Tested on Raspberry Pi 4B)
 
 # Setup & Usage
 
-Hardware Setup:
+**Software Setup:**
+Download the latest scripts and install all dependencies via the following commands. **Be sure to watch for errors!** You will need about 1GB of free space. The script can run for up to an hour.
+
+```
+git clone https://github.com/MCPCapital/harmonizeproject
+cd harmonizeproject
+sudo ./setup.sh
+```
+
+**Hardware Setup:**
 * Connect Video Device (PS4, FireStick, etc.) to the splitter input. 
 * Connect an HDMI cable from the 4k output to the TV; and from Output 2 (downscaled) to the video capture card connected to your device.
 * Ensure your splitter's switches are set to downscale Output 2 to 1080 or 720p!
 ![Connection Diagram](http://harmonizeproject.matthewpilsbury.com/diagram.png)
 
-Download the latest scripts via:
-`git clone https://gitlab.com/MCPCapital/harmonizeproject.git`
-`cd harmonizeproject`
-
-**NEW!** To install all relevant dependencies, run ./setup.sh as root or by using sudo. **Be sure to watch for errors!** Expect this to take up about 500MB, and up to an hour.
-
-If python3-opencv installation fails, you may have to compile from source. [Follow this guide.](https://pimylifeup.com/raspberry-pi-opencv/)
-
-Set up your entertainment area:
+**Entertainment Area Configuration:**
 * Hue App -> Settings -> Entertainment Areas
 * Harmonize will use the **height** and the **horizontal position** of lights in relation to the TV. **The depth/vertical position are currently ignored.**
 * In the example below, the light on the left is to the left of the TV at the bottom of it. The light on the right is on the right side of the TV at the top of it.
@@ -51,12 +52,14 @@ To start the program:
 * screen
 * cd harmonizeproject
 * ./harmonize.py
+* Type Ctrl+A and Ctrl-D to continue running the script in the background.
+* To resume the terminal session use screen -r
+* Press ENTER to safely stop the program.
 
-* If you have not set up a bridge before, the program will attempt to register you on the bridge. You will have 45 second to push the button on the bridge. *Current Bug - After registering, the script will store the clientdata but fail. Workaround - Simply run the script again.
+**First-Time Run Instructions:**
+* If you have not set up a bridge before, the program will attempt to register you on the bridge. You will have 45 second to push the button on the bridge. *Current Bug - After registering, the script will store the clientdata but fail & exit. Workaround - Simply run the script again since the data was saved.
 * If multiple bridges are found, you will be given the option to select one. You will have to do this every time if you have multiple bridges (for now).
 * If multiple entertainment areas are found, you will be given the option to select one. You can also enter this as a command line argument.
-* Enter Ctrl+A and then Ctrl+D; then, feel free to disconnect from the device. To resume the terminal use       *screen -r
-* Press ENTER to safely stop the program. Using Ctrl+C works but does not formally end the entertainment streaming session and thus, for an additional 10 seconds, the lights are rendered uncommunicable.
 
 Command line arguments:
 * -v            Display verbose output
@@ -71,6 +74,8 @@ Configurable values within the script:
 
 * "Import Error" - Ensure you have all the dependencies installed. Run through the manual dependency install instructions above.
 * No video input // lights are all dim gray - Run 'python3 ./videotest.py' to see if your device (via OpenCV) can properly read the video input.
+* w, h, or rgbframe not defined - Increase the waiting time from 0.75 seconds - Line 330 {time.sleep(.75)} *This is a known bug (race condition).
+* python3-opencv installation fails - Compile from source - [Follow this guide.](https://pimylifeup.com/raspberry-pi-opencv/)
 * Many questions are answered on our Reddit release thread [here.](https://www.reddit.com/r/Hue/comments/i1ngqt/release_harmonize_project_sync_hue_lights_with/) New issues should be raised on GitLab.
 
 # Contributions & License
