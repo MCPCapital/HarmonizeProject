@@ -1,6 +1,6 @@
 Harmonize Project *for Philips Hue* [![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](#) [![ForTheBadge built-with-love](http://ForTheBadge.com/images/badges/built-with-love.svg)](https://matthewpilsbury.com)
 ============================
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/MCPCapital/harmonizeproject/graphs/commit-activity) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)  [![Trust](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fastronomer.ullaakut.eu%2Fshields%3Fowner%3Dmcpcapital%26name%3Dharmonizeproject)](#) [![Open Source Love svg2](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://matthewpilsbury.com)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/MCPCapital/HarmonizeProject/graphs/commit-activity) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)  [![Trust](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fastronomer.ullaakut.eu%2Fshields%3Fowner%3Dmcpcapital%26name%3DHarmonizeProject)](#) [![Open Source Love svg2](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://matthewpilsbury.com)
 [![Author](https://img.shields.io/badge/Meet%20the%20Author-MCP-blue)](https://matthewpilsbury.com "matthewpilsbury.com")
 
 Harmonize Project is a low latency video analysis and pass-through application built in Python which alters Philips Hue lights based on their location relative to a screen; creating an ambient lighting effect and expanding content past the boundaries of a screen. Check out our Reddit thread [here](https://www.reddit.com/r/Hue/comments/i1ngqt/release_harmonize_project_sync_hue_lights_with/) and watch the demo below!
@@ -31,8 +31,8 @@ Hardware: (Tested on Raspberry Pi 4B)
 Download the latest scripts and install all dependencies via the following commands. **Be sure to watch for errors!** You will need about 1GB of free space. The script can run for up to an hour.
 
 ```
-git clone https://github.com/MCPCapital/harmonizeproject
-cd harmonizeproject
+git clone https://github.com/MCPCapital/HarmonizeProject
+cd HarmonizeProject
 sudo ./setup.sh
 ```
 
