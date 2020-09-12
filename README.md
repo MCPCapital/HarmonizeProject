@@ -55,7 +55,7 @@ sudo ./setup.sh
 
 **First-Time Run Instructions:**
 
-* If you have not set up a bridge before, the program will attempt to register you on the bridge. You will have 45 second to push the button on the bridge. *Current Bug - After registering, the script will store the clientdata but fail & exit. Workaround - Simply run the script again since the data was saved.
+* If you have not set up a bridge before, the program will attempt to register you on the bridge. You will have 45 second to push the button on the bridge. *Current Bug* - After registering, the script will store the clientdata but fail & exit. *Workaround* - Simply run the script again since the data was saved.
 * If multiple bridges are found, you will be given the option to select one. You will have to do this every time if you have multiple bridges (for now).
 * If multiple entertainment areas are found, you will be given the option to select one. You can also enter this as a command line argument.
 
@@ -63,28 +63,28 @@ sudo ./setup.sh
 
 **To start the program:**
 
-* screen
-* cd harmonizeproject
-* ./harmonize.py
+* `screen`
+* `cd harmonizeproject`
+* `./harmonize.py`
 * Type Ctrl+A and Ctrl-D to continue running the script in the background.
-* To resume the terminal session use screen -r
-* Press ENTER to safely stop the program.
+* To resume the terminal session use `screen -r`
+* Press *ENTER* to safely stop the program.
 
 **Command line arguments:**
 
-* -v            Display verbose output
-* -g #          Use specific entertainment group number (#)
+* `-v `           Display verbose output
+* `-g # `         Use specific entertainment group number (#)
 
 **Configurable values within the script:** (Advanced users only)
 
-* Line 237 - 'breadth' - determines the % from the edges of the screen to use in calculations. Default is 15%. Lower values can result in less lag time, but less color accuracy.
-* Line 315 - 'time.sleep(0.01)' - Determines how frequently messages are sent to the bridge. Keep in mind the rest of the function takes some time to run in addition to this sleep command. Bridge requests are capped by Philips at a rate of 60/s (1 per ~16.6ms) and the excess are dropped.
-* Run with 'sudo' to give Harmonize higher priority over other CPU tasks.
+* Line 237 - `breadth` - determines the % from the edges of the screen to use in calculations. Default is 15%. Lower values can result in less lag time, but less color accuracy.
+* Line 315 - `time.sleep(0.01)` - Determines how frequently messages are sent to the bridge. Keep in mind the rest of the function takes some time to run in addition to this sleep command. Bridge requests are capped by Philips at a rate of 60/s (1 per ~16.6ms) and the excess are dropped.
+* Run with `sudo` to give Harmonize higher priority over other CPU tasks.
 
 # Troubleshooting
 
 * "Import Error" - Ensure you have all the dependencies installed. Run through the manual dependency install instructions above.
-* No video input // lights are all dim gray - Run 'python3 ./videotest.py' to see if your device (via OpenCV) can properly read the video input.
+* No video input // lights are all dim gray - Run `python3 ./videotest.py` to see if your device (via OpenCV) can properly read the video input.
 * w, h, or rgbframe not defined - Increase the waiting time from 0.75 seconds - Line 330 {time.sleep(.75)} *This is a known bug (race condition).
 * python3-opencv installation fails - Compile from source - [Follow this guide.](https://pimylifeup.com/raspberry-pi-opencv/)
 * Many questions are answered on our Reddit release thread [here.](https://www.reddit.com/r/Hue/comments/i1ngqt/release_harmonize_project_sync_hue_lights_with/) New issues should be raised on GitLab.
