@@ -11,7 +11,7 @@ Check out our Reddit thread [here](https://www.reddit.com/r/Hue/comments/i1ngqt/
 
 [![GitHub Deleted our Account](https://matthewpilsbury.com/github-deleted.PNG)](#)
 
-GitHub deleted our account at 250 stars! Sorry for the interruption - we lost about a week of work, but this will be the official home of Harmonize Project. Prior to deletion, we were in the top 20,000 repositories and top 7,000 Python-based projects on GitHub.
+GitHub deleted our account at 250 stars! Prior to deletion, we were in the top 20,000 repositories and top 7,000 Python-based projects on GitHub. Sorry for the interruption and loss of issues.
 
 Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Signify or Philips Hue. Hue and Philips Hue are trademarks of Signify.
 
