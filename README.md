@@ -31,7 +31,7 @@ Hardware: (Tested on Raspberry Pi 4B)
 Download the latest scripts and install all dependencies via the following commands. **Be sure to watch for errors!** You will need about 1GB of free space. The script can run for up to an hour.
 
 ```
-git clone https://github.com/MCPCapital/HarmonizeProject
+git clone https://github.com/MCPCapital/HarmonizeProject.git
 cd HarmonizeProject
 sudo ./setup.sh
 ```
