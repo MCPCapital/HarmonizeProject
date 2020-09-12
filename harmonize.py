@@ -5,7 +5,8 @@
 ##########        by         ###########
 ########## MCP Capital, LLC  ###########
 ########################################
-#Github.com/MCPCapital/harmonizeproject#
+# Github.com/MCPCapital/harmonizeproject
+# Script Last Updated - Release 1.1.2
 ########################################
 ### -v to enable verbose messages     ##
 ### -g #  to pre-select a group number##
