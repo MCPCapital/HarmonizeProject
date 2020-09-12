@@ -30,6 +30,7 @@ Hardware: (Tested on Raspberry Pi 4B)
 # Setup & Usage
 
 **Software Setup:**
+
 Download the latest scripts and install all dependencies via the following commands. **Be sure to watch for errors!** You will need about 1GB of free space. The script can run for up to an hour.
 
 ```
@@ -39,12 +40,14 @@ sudo ./setup.sh
 ```
 
 **Hardware Setup:**
+
 * Connect Video Device (PS4, FireStick, etc.) to the splitter input. 
 * Connect an HDMI cable from the 4k output to the TV; and from Output 2 (downscaled) to the video capture card connected to your device.
 * Ensure your splitter's switches are set to downscale Output 2 to 1080 or 720p!
 ![Connection Diagram](http://harmonizeproject.matthewpilsbury.com/diagram.png)
 
 **Entertainment Area Configuration:**
+
 * Hue App -> Settings -> Entertainment Areas
 * Harmonize will use the **height** and the **horizontal position** of lights in relation to the TV. **The depth/vertical position are currently ignored.**
 * In the example below, the light on the left is to the left of the TV at the bottom of it. The light on the right is on the right side of the TV at the top of it.
