@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import cv2 # Script Last Updated - Release 1.1.2
+import cv2             # Script Last Updated - Release 1.1.2
 
 print("Press ESC to exit.")
 
