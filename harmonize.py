@@ -6,7 +6,7 @@
 ########## MCP Capital, LLC  ###########
 ########################################
 # Github.com/MCPCapital/harmonizeproject
-# Script Last Updated - Release 1.1.3
+# Script Last Updated - Release 1.1.4
 ########################################
 ### -v to enable verbose messages     ##
 ### -g #  to pre-select a group number##
