@@ -25,7 +25,6 @@ import threading
 import fileinput
 import numpy as np
 import cv2
-import mbedtls
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-v","--verbose", dest="verbose", action="store_true")
