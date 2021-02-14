@@ -21,11 +21,16 @@ Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Sign
 * Sending 50-75 color updates per second
 
 # Requirements 
-Hardware: (Tested on Raspberry Pi 4B)
+Hardware Option A (Tested on Raspberry Pi 4B):
 * RAM: 256MB Free Minimum (512MB recommended)
 * CPU: 1.5GHz+, 4 Cores strongly recommended due to running three simultaneous threads.
 * HDMI Splitter (Must be able to output 4k & 1080/720p simultaneously) [Here is a good one for $25](https://www.amazon.com/gp/product/B07YTWV8PR/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1), though it breaks HDR when downscaling output 2. The goal here is one output of 4K and another output of 1080/720p.
 * USB3.0 HDMI Capture Card (Capable of capturing 720/1080p; delay should be 50ms or under.) [I got this when it was $45.](https://www.amazon.com/gp/product/B07Z7RNDBZ/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1) A similar one should be fine. These are untested: [Panoraxy](https://www.amazon.com/Panoraxy-Capture-1080PFHD-Broadcast-Camcorder/dp/B088PYDJ22/ref=sr_1_21?dchild=1&keywords=hdmi+to+usb+3.0+capture&qid=1596386201&refinements=p_36%3A1253504011%2Cp_85%3A2470955011&rnid=2470954011&rps=1&s=electronics&sr=1-21) | [Aliexpress (This shape/style tends to perform well.)](https://www.aliexpress.com/item/4000834496145.html?spm=a2g0o.productlist.0.0.27a14df5Wc5Qoc&algo_pvid=e745d484-c811-4d2e-aebd-1403e862f148&algo_expid=e745d484-c811-4d2e-aebd-1403e862f148-15&btsid=0ab50f4415963867142714634e7e8e&ws_ab_test=searchweb0_0,searchweb201602_,searchweb201603_)
+
+Hardware Option B (for A/V receivers with 2 or more HDMI outputs):
+* Raspberry Pi 4B kit running with recommended power supply (tested on 8GB model running on Ubuntu 20.04 64-bit OS)
+* HDMI Splitter (tested on U9 ViewHD Latest 4K 1x2 HDMI Splitter 1 in 2 Out, Model U9-Pluto v1.4)
+* USB3.0 HDMI Capture Card (tested on Elgato Cam Link 4k)
 
 # Setup
 
@@ -39,12 +44,21 @@ cd HarmonizeProject
 sudo ./setup.sh
 ```
 
-**Hardware Setup:**
+**Hardware Setup Option A:**
 
 * Connect Video Device (PS4, FireStick, etc.) to the splitter input. 
 * Connect an HDMI cable from the 4k output to the TV; and from Output 2 (downscaled) to the video capture card connected to your device.
 * Ensure your splitter's switches are set to downscale Output 2 to 1080 or 720p!
 ![Connection Diagram](http://harmonizeproject.matthewpilsbury.com/diagram.png)
+
+**Hardware Setup Option B (for A/V receivers with 2 or more HDMI outputs):**
+
+* Connect your video device (PS4, FireStick, etc.) to an available HDMI input on your A/V receiver. 
+* Connect an HDMI cable from the HDMI output 1 from A/V receiver to the TV.
+* Connect an HDMI cable from HDMI output 2 from the receiver to the HDMI input on the splitter.
+* Connect an HDMI cable from the HDMI output 1 of the splitter to the HDMI input on the video capture device.
+* Connect the video capture device USB 3.0 output to a USB 3.0 port (not a USB 2.0 port) on the Raspberry Pi. 
+* Ensure that the DIP switches on the splitter are set to downscale HDMI Output 1 to 1080 or 720p.
 
 **Entertainment Area Configuration:**
 
