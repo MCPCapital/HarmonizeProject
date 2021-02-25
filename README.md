@@ -34,7 +34,7 @@ Hardware Option B (for A/V receivers with 2 or more HDMI outputs):
 
 # Setup
 
-**Software Setup:**
+**Software Setup Option A:**
 
 Download the latest scripts and install all dependencies via the following commands. **Be sure to watch for errors!** You will need about 1GB of free space. The script can run for up to an hour.
 
@@ -42,6 +42,37 @@ Download the latest scripts and install all dependencies via the following comma
 git clone https://github.com/MCPCapital/HarmonizeProject.git
 cd HarmonizeProject
 sudo ./setup.sh
+```
+
+**Software Setup Option B (tested with Ubuntu 20.04.2 and Python v3.8.5):**
+
+Install all dependencies via the following commands. **Be sure to watch for errors!** 
+
+* Install pip:
+```
+sudo apt-get install python3-pip
+```
+* Install HTTP Parser and NumPy dependencies via pip:
+```
+pip3 install http-parser numpy
+```
+* Compile and install OpenCV from source - [Follow this guide...] (https://docs.opencv.org/master/d2/de6/tutorial_py_setup_in_ubuntu.html) Compiling may take a couple of hours.
+```
+sudo apt-get install cmake
+sudo apt-get install gcc g++
+sudo apt-get install python3-dev python3-numpy
+sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev
+sudo apt-get install libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev
+sudo apt-get install libgtk-3-dev
+sudo apt-get install git
+git clone https://github.com/opencv/opencv.git
+mkdir opencv/build
+cd opencv/build
+cmake ../
+make
+sudo make install
+cd ../..
+git clone https://github.com/MCPCapital/HarmonizeProject.git
 ```
 
 **Hardware Setup Option A:**
@@ -78,7 +109,7 @@ sudo ./setup.sh
 **To start the program:**
 
 * `screen`
-* `cd harmonizeproject`
+* `cd HarmonizeProject`
 * `./harmonize.py`
 * Type Ctrl+A and Ctrl-D to continue running the script in the background.
 * To resume the terminal session use `screen -r`
