@@ -10,6 +10,7 @@
 ########################################
 ### -v to enable verbose messages     ##
 ### -g #  to pre-select a group number##
+### -b #  to pre-select a bridge by id##
 ########################################
 
 import sys
@@ -29,6 +30,7 @@ import cv2
 parser = argparse.ArgumentParser()
 parser.add_argument("-v","--verbose", dest="verbose", action="store_true")
 parser.add_argument("-g","--groupid", dest="groupid")
+parser.add_argument("-b","--bridgeid", dest="bridgeid")
 commandlineargs = parser.parse_args()
 
 def eprint(*args, **kwargs):
@@ -47,7 +49,16 @@ def findhue():  #Auto-find bridges on network & get list
     for b in bridgelist:
         i += 1
     
-    if len(bridgelist)>1:
+    if commandlineargs.bridgeid is not None:
+        found = False
+        for idx, b in enumerate(bridgelist):
+            if b["id"] == commandlineargs.bridgeid:
+                bridge = idx
+                found = True
+                break
+        if not found:
+            sys.exit("bridge {} was not found".format(commandlineargs.bridgeid))
+    elif len(bridgelist)>1:
         print("Multiple bridges found. Select one of the bridges below (", list(bridgelist),")")
         bridge = int(input())   
     else: 
