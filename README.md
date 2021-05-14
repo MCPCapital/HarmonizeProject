@@ -1,7 +1,6 @@
 Harmonize Project *for Philips Hue* [![ForTheBadge built-with-love](http://ForTheBadge.com/images/badges/built-with-love.svg)](https://matthewpilsbury.com)
 ============================
-[![Maintenance](https://img.shields.io/maintenance/no/2021)](https://GitHub.com/MCPCapital/HarmonizeProject/graphs/commit-activity) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)<!--[![Trust](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fastronomer.ullaakut.eu%2Fshields%3Fowner%3DMCPCapital%26name%3DHarmonizeProject)](#)--> [![Open Source Love svg2](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://matthewpilsbury.com)
-[![Author](https://img.shields.io/badge/Meet%20the%20Author-MCP-blue)](https://matthewpilsbury.com "matthewpilsbury.com") [![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](#)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)<!--[![Trust](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fastronomer.ullaakut.eu%2Fshields%3Fowner%3DMCPCapital%26name%3DHarmonizeProject)](#)--> [![Open Source Love svg2](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://matthewpilsbury.com)
 
 Harmonize Project is a low latency video analysis and pass-through application built in Python which alters Philips Hue lights based on their location relative to a screen; creating an ambient lighting effect and expanding content past the boundaries of a screen. 
 
