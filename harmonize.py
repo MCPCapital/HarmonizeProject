@@ -336,26 +336,32 @@ try:
     try:
         threads = list()
         verbose("Starting cv2input...")
-        t = threading.Thread(target=cv2input_to_buffer)
-        t.start()
-        threads.append(t)
-        time.sleep(.75)
-        verbose("Starting image averager...")
-        t = threading.Thread(target=averageimage)
-        t.start()
-        threads.append(t)
-        time.sleep(.25) #Initialize and find bridge IP before creating connection
-        verbose("Opening SSL stream to lights...")
-        cmd = ["openssl","s_client","-dtls1_2","-cipher","PSK-AES128-GCM-SHA256","-psk_identity",clientdata['username'],"-psk",clientdata['clientkey'], "-connect", hueip+":2100"]
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-        t = threading.Thread(target=buffer_to_light, args=(proc,))
-        t.start()
-        threads.append(t)
+        try:
+            subprocess.check_output("ls -ltrh /dev/video0",shell=True)
+        except subprocess.CalledProcessError:                                                                                                  
+            print("--- ERROR: Video capture card not detected on /dev/video0 ---")
+        else:
+            print("--- INFO: Detected video capture card on /dev/video0 ---")
+            t = threading.Thread(target=cv2input_to_buffer)
+            t.start()
+            threads.append(t)
+            time.sleep(.75)
+            verbose("Starting image averager...")
+            t = threading.Thread(target=averageimage)
+            t.start()
+            threads.append(t)
+            time.sleep(.25) #Initialize and find bridge IP before creating connection
+            verbose("Opening SSL stream to lights...")
+            cmd = ["openssl","s_client","-dtls1_2","-cipher","PSK-AES128-GCM-SHA256","-psk_identity",clientdata['username'],"-psk",clientdata['clientkey'], "-connect", hueip+":2100"]
+            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+            t = threading.Thread(target=buffer_to_light, args=(proc,))
+            t.start()
+            threads.append(t)
 
-        input("Press return to stop") # Allow us to exit easily
-        stopped=True
-        for t in threads:
-            t.join()
+            input("Press return to stop\n") # Allow us to exit easily
+            stopped=True
+            for t in threads:
+                t.join()
     except Exception as e:
         print(e)
         stopped=True
