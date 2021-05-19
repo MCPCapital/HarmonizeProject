@@ -21,14 +21,14 @@ Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Sign
 * Sending 50-75 color updates per second
 
 # Requirements 
-Hardware Option A (Tested on Raspberry Pi 4B):
+**Hardware Option A (Tested on Raspberry Pi 4B):**
 * RAM: 256MB Free Minimum (512MB recommended)
 * CPU: 1.5GHz+, 4 Cores strongly recommended due to running three simultaneous threads.
 * HDMI Splitter (Must be able to output 4k & 1080/720p simultaneously) [Here is a good one for $25](https://www.amazon.com/gp/product/B07YTWV8PR/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1), though it breaks HDR when downscaling output 2. The goal here is one output of 4K and another output of 1080/720p.
 * USB3.0 HDMI Capture Card (Capable of capturing 720/1080p; delay should be 50ms or under.) [I got this when it was $45.](https://www.amazon.com/gp/product/B07Z7RNDBZ/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1) A similar one should be fine. These are untested: [Panoraxy](https://www.amazon.com/Panoraxy-Capture-1080PFHD-Broadcast-Camcorder/dp/B088PYDJ22/ref=sr_1_21?dchild=1&keywords=hdmi+to+usb+3.0+capture&qid=1596386201&refinements=p_36%3A1253504011%2Cp_85%3A2470955011&rnid=2470954011&rps=1&s=electronics&sr=1-21) | [Aliexpress (This shape/style tends to perform well.)](https://www.aliexpress.com/item/4000834496145.html?spm=a2g0o.productlist.0.0.27a14df5Wc5Qoc&algo_pvid=e745d484-c811-4d2e-aebd-1403e862f148&algo_expid=e745d484-c811-4d2e-aebd-1403e862f148-15&btsid=0ab50f4415963867142714634e7e8e&ws_ab_test=searchweb0_0,searchweb201602_,searchweb201603_)
 
-Hardware Option B (for A/V receivers with 2 or more HDMI outputs):
-* Raspberry Pi 4B kit running with recommended power supply (tested on 8GB model running on Ubuntu 20.04 64-bit OS)
+**Hardware Option B (for A/V receivers with 2 or more HDMI outputs):**
+* Raspberry Pi 4B kit running with recommended power supply. This hardware option was tested on the 8GB model running Ubuntu 64-bit OS (see software setup option B below).
 * HDMI Splitter (tested on U9 ViewHD Latest 4K 1x2 HDMI Splitter 1 in 2 Out, Model U9-Pluto v1.4)
 * USB3.0 HDMI Capture Card (tested on Elgato Cam Link 4k)
 
@@ -44,7 +44,13 @@ cd HarmonizeProject
 sudo ./setup.sh
 ```
 
-**Software Setup Option B (tested with Ubuntu 20.04.2 and Python v3.8.5):**
+**Software Setup Option B:**
+
+**Ubuntu Desktop 20.04 64-bit with Python v3.8.5**
+
+**Ubuntu Desktop 21.04 64-bit with Python v3.9.4 (most recent version tested)**
+
+Install OS from Raspberry Pi Imager software onto SD card (see https://www.raspberrypi.org/software/). Install SD card and boot.
 
 Install all dependencies via the following commands. **Be sure to watch for errors!** 
 
@@ -132,6 +138,7 @@ git clone https://github.com/MCPCapital/HarmonizeProject.git
 * No video input // lights are all dim gray - Run `python3 ./videotest.py` to see if your device (via OpenCV) can properly read the video input.
 * w, h, or rgbframe not defined - Increase the waiting time from 0.75 seconds - Line 330 {time.sleep(.75)} *This is a known bug (race condition).
 * python3-opencv installation fails - Compile from source - [Follow this guide.](https://pimylifeup.com/raspberry-pi-opencv/)
+* Sanity check: The output of the command `ls -ltrh /dev/video*` should provide a list of results that includes /dev/video0 when the OS properly detects the video capture card.
 * Many questions are answered on our Reddit release thread [here.](https://www.reddit.com/r/Hue/comments/i1ngqt/release_harmonize_project_sync_hue_lights_with/) New issues should be raised on GitLab.
 
 # Contributions & License
