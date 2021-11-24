@@ -14,7 +14,10 @@ GitHub deleted our account at 250 stars! Prior to deletion, we were in the top 2
 
 Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Signify or Philips Hue. Hue and Philips Hue are trademarks of Signify.
 
-# Features:
+# New Features
+* Latency now optimized for a single light source centered behind display (use the -s argument at the command prompt to enable)
+
+# Features
 * Light color and intensity changes based on pixels in its relative set location
 * Video -> Light latency of 80ms via Streaming to Hue Lights via Entertainment API
 * Sending 50-75 color updates per second
@@ -47,7 +50,7 @@ sudo ./setup.sh
 
 **Ubuntu Desktop 20.04 64-bit with Python v3.8.5**
 
-**Ubuntu Desktop 21.04 64-bit with Python v3.9.4 (most recent version tested)**
+**Ubuntu Desktop 21.04 64-bit with Python v3.9.5 (most recent version tested)**
 
 Install OS from Raspberry Pi Imager software onto SD card (see https://www.raspberrypi.org/software/). Install SD card and boot.
 
@@ -122,8 +125,9 @@ git clone https://github.com/MCPCapital/HarmonizeProject.git
 
 **Command line arguments:**
 
-* `-v `           Display verbose output
-* `-g # `         Use specific entertainment group number (#)
+* `-v `     Display verbose output
+* `-g # `   Use specific entertainment group number (#)
+* `-s `     Enable latency optimization for single light source centered behind display
 
 **Configurable values within the script:** (Advanced users only)
 
@@ -144,6 +148,6 @@ git clone https://github.com/MCPCapital/HarmonizeProject.git
 
 Pull requests are encouraged and accepted! Whether you have some code changes or enhancements to the readme, feel free to open a pull request. Harmonize Project is licensed under [The Creative Commons Attribution-NonCommercial 4.0 International Public License.](https://creativecommons.org/licenses/by-nc/4.0/legalcode)
 
-Development credits to [Matthew C. Pilsbury](https://matthewpilsbury.com) ([MCP Capital, LLC](http://mcpcapital.net)) and Ares N. Vlahos.
+Development credits to [Matthew C. Pilsbury](https://matthewpilsbury.com) ([MCP Capital, LLC](http://mcpcapital.net)), Ares N. Vlahos, and Brad Dworak.
 
 [![licensebuttons by-nc](https://licensebuttons.net/l/by-nc/3.0/88x31.png)](https://creativecommons.org/licenses/by-nc/4.0/legalcode)  [![ForTheBadge makes-people-smile](http://ForTheBadge.com/images/badges/makes-people-smile.svg)](https://matthewpilsbury.com) [![forthebadge](https://forthebadge.com/images/badges/pretty-risque.svg)](https://matthewpilsbury.com) [![forthebadge](https://forthebadge.com/images/badges/uses-badges.svg)](https://forthebadge.com) [![forthebadge](https://forthebadge.com/images/badges/built-with-resentment.svg)](https://www.wipo.int/amc/en/domains/search/text.jsp?case=D2020-0278)
