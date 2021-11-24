@@ -6,11 +6,12 @@
 ########## MCP Capital, LLC  ###########
 ########################################
 # Github.com/MCPCapital/harmonizeproject
-# Script Last Updated - Release 1.1.4
+# Script Last Updated - Release 1.2.0
 ########################################
 ### -v to enable verbose messages     ##
-### -g #  to pre-select a group number##
-### -b #  to pre-select a bridge by id##
+### -g # to pre-select a group number ##
+### -b # to pre-select a bridge by id ##
+### -s # single light source optimized #
 ########################################
 
 import sys
@@ -31,7 +32,10 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-v","--verbose", dest="verbose", action="store_true")
 parser.add_argument("-g","--groupid", dest="groupid")
 parser.add_argument("-b","--bridgeid", dest="bridgeid")
+parser.add_argument("-s","--single_light", dest="single_light", action="store_true")
 commandlineargs = parser.parse_args()
+
+is_single_light = False
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
@@ -285,7 +289,7 @@ def averageimage():
 
 ######### Now that weve defined our RGB values as bytes, we define how we pull values from the video analyzer output
 def cv2input_to_buffer(): ######### Section opens the device, sets buffer, pulls W/H
-    global w,h,rgbframe
+    global w,h,rgbframe, channels
     cap = cv2.VideoCapture(0) #variable cap is our raw video input
     if cap.isOpened(): # Try to get the first frame
         verbose('Capture Device Opened')
@@ -303,7 +307,11 @@ def cv2input_to_buffer(): ######### Section opens the device, sets buffer, pulls
         ret = cap.grab() #constantly grabs frames
         if ct % 1 == 0: # Skip frames (1=don't skip,2=skip half,3=skip 2/3rds)
             ret, bgrframe = cap.retrieve() #processes most recent frame
-            rgbframe = cv2.cvtColor(bgrframe, cv2.COLOR_BGR2RGB) #corrects BGR to RGB
+            if is_single_light:
+                channels = cv2.mean(bgrframe)
+            else:
+                rgbframe = cv2.cvtColor(bgrframe, cv2.COLOR_BGR2RGB) #corrects BGR to RGB
+                #verbose('BGrframe is :',bgrframe)
             if not ret: break
 
 ######################################################
@@ -317,10 +325,13 @@ def buffer_to_light(proc): #Potentially thread this into 2 processes?
         bufferlock.acquire()
         
         message = bytes('HueStream','utf-8') + b'\1\0\0\0\0\0\0'
-        for i in rgb_bytes:
-            message += b'\0\0' + bytes(chr(int(i)), 'utf-8') + rgb_bytes[i]
-
-
+        if is_single_light:
+            single_light_bytes = bytearray([int(channels[2]/2), int(channels[2]/2), int(channels[1]/2), int(channels[1]/2), int(channels[0]/2), int(channels[0]/2),] ) # channels corrected here from BGR to RGB
+            message += b'\0\0' + bytes(chr(int(1)), 'utf-8') + single_light_bytes
+        else:
+            for i in rgb_bytes:
+                message += b'\0\0' + bytes(chr(int(i)), 'utf-8') + rgb_bytes[i]
+ 
         bufferlock.release()
         proc.stdin.write(message.decode('utf-8','ignore'))
         time.sleep(.01) #0.01 to 0.02 (slightly under 100 or 50 messages per sec // or (.015 = ~66.6))
@@ -346,10 +357,15 @@ try:
             t.start()
             threads.append(t)
             time.sleep(.75)
-            verbose("Starting image averager...")
-            t = threading.Thread(target=averageimage)
-            t.start()
-            threads.append(t)
+            if (commandlineargs.single_light is True) and (len(light_locations)==1):
+                is_single_light = True
+                print("Enabled optimization for single light source") # averager thread is not utilized
+            else:
+                is_single_light = False
+                verbose("Starting image averager...")
+                t = threading.Thread(target=averageimage)
+                t.start()
+                threads.append(t)
             time.sleep(.25) #Initialize and find bridge IP before creating connection
             verbose("Opening SSL stream to lights...")
             cmd = ["openssl","s_client","-dtls1_2","-cipher","PSK-AES128-GCM-SHA256","-psk_identity",clientdata['username'],"-psk",clientdata['clientkey'], "-connect", hueip+":2100"]
