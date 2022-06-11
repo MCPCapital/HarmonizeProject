@@ -15,7 +15,8 @@ GitHub deleted our account at 250 stars! Prior to deletion, we were in the top 2
 Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Signify or Philips Hue. Hue and Philips Hue are trademarks of Signify.
 
 # New Features
-* Latency now optimized for a single light source centered behind display (use the -s argument at the command prompt to enable)
+* v1.3: Added multicast DNS discovery for detecting bridge
+* v1.2: Latency now optimized for a single light source centered behind display (use the -s argument at the command prompt to enable)
 
 # Features
 * Light color and intensity changes based on pixels in its relative set location
