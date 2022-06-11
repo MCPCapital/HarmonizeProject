@@ -6,7 +6,7 @@
 ########## MCP Capital, LLC  ###########
 ########################################
 # Github.com/MCPCapital/harmonizeproject
-# Script Last Updated - Release 1.2.0
+# Script Last Updated - Release 1.3.0
 ########################################
 ### -v to enable verbose messages     ##
 ### -g # to pre-select a group number ##
@@ -15,18 +15,36 @@
 ########################################
 
 import sys
-from http_parser.parser import HttpParser
 import argparse
 import requests 
 import time
 import json
-from pathlib import Path
-from socket import socket, AF_INET, SOCK_DGRAM, IPPROTO_UDP, timeout
+import socket
 import subprocess
 import threading
 import fileinput
 import numpy as np
 import cv2
+
+from pathlib import Path
+from http_parser.parser import HttpParser
+from zeroconf import ServiceBrowser, ServiceListener, Zeroconf
+
+class MyListener(ServiceListener):
+    bridgelist = []
+    def update_service(self, zeroconf, type, name):
+        print(f"Bridge updated")
+
+    def remove_service(self, zeroconf, type, name):
+        print(f"Bridge removed")
+
+    def add_service(self, zeroconf, type, name):
+        info = zeroconf.get_service_info(type, name)
+        self.bridgelist.append(info.parsed_addresses()[0])
+        print("INFO: Detected %s via mDNS at IP address: %s" % (name, info.parsed_addresses()[0]))
+
+zeroconf = Zeroconf()
+listener = MyListener()
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-v","--verbose", dest="verbose", action="store_true")
@@ -46,92 +64,95 @@ def verbose(*args, **kwargs):
 
 ######### Initialization Complete - Now lets try and connect to the bridge ##########
 
-def findhue():  #Auto-find bridges on network & get list
-    r = requests.get("https://discovery.meethue.com/")
-    bridgelist = json.loads(r.text)
-    i = 0
-    for b in bridgelist:
-        i += 1
-    
-    if commandlineargs.bridgeid is not None:
-        found = False
-        for idx, b in enumerate(bridgelist):
-            if b["id"] == commandlineargs.bridgeid:
-                bridge = idx
-                found = True
-                break
-        if not found:
-            sys.exit("bridge {} was not found".format(commandlineargs.bridgeid))
-    elif len(bridgelist)>1:
-        print("Multiple bridges found. Select one of the bridges below (", list(bridgelist),")")
-        bridge = int(input())   
-    else: 
-        bridge = 0 #Default to the only bridge if only one is found
-     
-    hueip = bridgelist[bridge]['internalipaddress'] #Logic currently assumes 1 bridge on the network
-    print("I will use the bridge at ", hueip)
-    
-    msg = \
-        'M-SEARCH * HTTP/1.1\r\n' \
-        'HOST:' + hueip +':1900\r\n' \
-        'ST:upnp:rootdevice\r\n' \
-        'MX:2\r\n' \
-        'MAN:"ssdp:discover"\r\n' \
-        '\r\n'
-    s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)
-    s.settimeout(12)
-    s.sendto(msg.encode('utf-8'), (hueip, 1900) )
+def findhue(): #Auto-find bridges on mDNS network
     try:
-        while True:
-            data, addr = s.recvfrom(65507)
-            p = HttpParser()
-            recved = len(data)
-            nparsed = p.execute(data, recved)
-            assert nparsed == recved
-            if p.is_headers_complete():
-                headers = p.get_headers()
-                if 'hue-bridgeid' in headers:
-                    return addr,headers
-            if p.is_message_complete():
-                break
-    except timeout:
-        verbose('Timed out, better luck next time')
-        pass
+        browser = ServiceBrowser(zeroconf, "_hue._tcp.local.", listener)
+    except (
+        zeroconf.BadTypeInNameException,
+        NotImplementedError,
+        OSError,
+        socket.error,
+        zeroconf.NonUniqueNameException,
+    ) as exc:
+        print("ERROR: Cannot create mDNS service discovery browser: {}".format(exc))
+        sys.exit(1)
+    
+    # wait 1 sec for mDNS discovery lookup
+    time.sleep(1)
+    
+    if len(listener.bridgelist) == 1:
+        print("INFO: Single Hue bridge detected on network via mDNS.")
+        return listener.bridgelist[0]
+    
+    bridgelist = []
+    if len(listener.bridgelist) == 0:
+        print("INFO: Bridge not detected via mDNS lookup, will try via discovery method.")
+        try:
+            r = requests.get("https://discovery.meethue.com/")
+        except:
+            sys.exit("ERROR: Discovery method did not execute properly. Please try again later. Exiting application.")
+        bridgelist = json.loads(r.text)
+        
+        if len(bridgelist) == 1:
+            print("INFO: Single Hue bridge detected via network discovery.")
+            return bridgelist[0]['internalipaddress']
+        
+        if commandlineargs.bridgeid is not None:
+            for idx, b in enumerate(bridgelist):
+                if b["id"] == commandlineargs.bridgeid:
+                    return bridgelist[idx]['internalipaddress']
+            sys.exit("ERROR: Bridge {} was not found".format(commandlineargs.bridgeid))
+    
+    # if multiple bridges detected via mDNS
+    if len(listener.bridgelist)>1:
+            print("Multiple bridges found via mDNS lookup. Key a number corresponding to the list of bridges below:")
+            for index, value in enumerate(listener.bridgelist):
+                print("[" + str(index+1) + "]:", value)
+            bridge = int(input())
+            return listener.bridgelist[bridge-1]
+    
+    # if multiple bridges detected via network discovery
+    if len(bridgelist)>1:
+            print("Multiple bridges found via network discovery. Key a number corresponding to the list of bridges below:")
+            for index, value in enumerate(bridgelist):
+                print("[" + str(index+1) + "]:", value)
+            bridge = int(input())
+            return bridgelist[bridge-1]['internalipaddress']     
+    
     return None
 
-#verbose("Finding bridge...")
-(hueip,port),headers = findhue() or ((None,None),None)
+print("--- Starting Harmonizer application ---")
+hueip = findhue() or None
 if hueip is None:
-    sys.exit("Hue bridge not found. Mission failed, better luck next time")
-verbose("I found the Bridge on", hueip)
+    sys.exit("ERROR: Hue bridge not found. Please ensure proper network connectivity and power connection to the hue bridge.")
+verbose("INFO: Hue bridge located at:", hueip)
 
-
-verbose("Checking if Harmonize is registered on the bridge... (Looking for client.json)") #Check if the username and client key have already been saved
+verbose("Checking whether Harmonizer application is already registered (Looking for client.json file).") #Check if the username and client key have already been saved
 
 def register():
-    print("Device not registered on bridge")
+    print("INFO: Device not registered on bridge")
     payload = {"devicetype":"harmonizehue","generateclientkey":True}
-    print("You have 45 seconds to push the button! I will check if you did every 5 seconds")
+    print("INFO: You have 45 seconds to push the button! Checking for button press every 5 seconds.")
     attempts = 1
     while attempts < 10:
         r = requests.post(("http://%s/api" % (hueip)), json.dumps(payload))
         bridgeresponse = json.loads(r.text)
         if  'error' in bridgeresponse[0]:
-            print(attempts,"Warning: {0}".format(bridgeresponse[0]['error']['description']))
+            print(attempts,"WARNING: {0}".format(bridgeresponse[0]['error']['description']))
         elif('success') in bridgeresponse[0]:
             clientdata = bridgeresponse[0]["success"]
             did_get_username = True
             f = open("client.json", "w")
             f.write(json.dumps(clientdata))
             f.close()
-            print("Success! I generated a username and client key to access the bridge's Entertainment API!")
+            print("INFO: Username and client key generated to access the bridge Entertainment API functionality.")
             break
         else:
-            print("No response")
+            print("INFO: No response detected.")
         attempts += 1
         time.sleep(5)
     else:
-        print("You didn't push the button...  Exiting...")
+        print("ERROR: Button press not detected, exiting application.")
         exit()
 
 if Path("./client.json").is_file():
@@ -139,31 +160,39 @@ if Path("./client.json").is_file():
     jsonstr = f.read()
     clientdata = json.loads(jsonstr)
     f.close()
-    verbose("Client Data Found)")
-    global baseurl
+    verbose("INFO: Client data found from client.json file.")
+    
+    global baseurl, base_url_v2
     baseurl = "http://{}/api".format(hueip)
+    base_url_v2 = "https://{}".format(hueip)
+    
     setupurl = baseurl + "/" + clientdata['username']
     r = requests.get(url = setupurl)
     setupresponse = dict()
     setupresponse = json.loads(r.text)
     if  setupresponse.get('error'):
-        verbose("Client data no longer valid")
+        verbose("INFO: Client data no longer valid.")
         register()
     else:
-        verbose("Client data valid", clientdata)
+        verbose("INFO: Client data valid:", clientdata)
 else:
     register()
 
-verbose("Requesting bridge information...") #Make sure bridge supports streaming API
+verbose("Requesting bridge information...") 
 r = requests.get(url = baseurl+"/config")
 jsondata = r.json()
-if jsondata["apiversion"]<"1.22":
-    sys.exit("Bridge is way too old! Upgrade it to 1.22+ in the Hue app.")
-verbose("Api version is good to go. You've got version {}...".format(jsondata["apiversion"]))
+if jsondata["apiversion"]<"1.22": #Ensure the bridge supports streaming via API v1
+    sys.exit("ERROR: Firmware API version on the bridge is outdated. Upgrade it using the Hue app. API version must be 1.22 or greater.")
+verbose("INFO: The bridge is capable of streaming via APIv1. API version {} detected...".format(jsondata["apiversion"]))
+if jsondata["swversion"]<"1948086000": #Check if the bridge supports streaming via API v2
+    print("DEPRECATION NOTICE: Firmware software version on the bridge is outdated and does not support APIv2. Consider upgrading it using Hue app. Software version must be 194808600 or greater.")
+else:
+    verbose("INFO: The bridge is capable of streaming via APIv2. Firmware version {} detected...".format(jsondata["swversion"]))
 
 ######### We're connected! - Now lets find entertainment areas in the list of groups ##########
 r = requests.get(url = baseurl+"/{}/groups".format(clientdata['username']))
 jsondata = r.json()
+
 groups = dict()
 groupid = commandlineargs.groupid
 
@@ -346,7 +375,7 @@ def buffer_to_light(proc): #Potentially thread this into 2 processes?
 try:
     try:
         threads = list()
-        verbose("Starting cv2input...")
+        print("Starting computer vision engine...")
         try:
             subprocess.check_output("ls -ltrh /dev/video0",shell=True)
         except subprocess.CalledProcessError:                                                                                                  
@@ -383,7 +412,8 @@ try:
         stopped=True
 
 finally: #Turn off streaming to allow normal function immedietly
-    verbose("Disabling streaming on Entertainment area")
+    zeroconf.close()
+    print("Disabling streaming on Entertainment area")
     r = requests.put(url = baseurl+"/{}/groups/{}".format(clientdata['username'],groupid),json={"stream":{"active":False}}) 
     jsondata = r.json()
     verbose(jsondata)

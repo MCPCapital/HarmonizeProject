@@ -15,7 +15,8 @@ GitHub deleted our account at 250 stars! Prior to deletion, we were in the top 2
 Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Signify or Philips Hue. Hue and Philips Hue are trademarks of Signify.
 
 # New Features
-* Latency now optimized for a single light source centered behind display (use the -s argument at the command prompt to enable)
+* v1.3: Added multicast DNS discovery for detecting bridge
+* v1.2: Latency now optimized for a single light source centered behind display (use the -s argument at the command prompt to enable)
 
 # Features
 * Light color and intensity changes based on pixels in its relative set location
@@ -60,9 +61,17 @@ Install all dependencies via the following commands. **Be sure to watch for erro
 ```
 sudo apt-get install python3-pip
 ```
-* Install HTTP Parser and NumPy dependencies via pip:
+* Install HTTP Parser, NumPy, and zerconf Python dependencies via pip:
 ```
-pip3 install http-parser numpy
+pip3 install http-parser numpy zeroconf
+```
+* Install Snap:
+```
+sudo apt install snapd
+```
+* Install Avahi (multicast DNS daemon):
+```
+sudo snap install avahi
 ```
 * Compile and install OpenCV from source - [Follow this guide...] (https://docs.opencv.org/master/d2/de6/tutorial_py_setup_in_ubuntu.html) Compiling may take a couple of hours.
 ```
