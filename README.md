@@ -60,9 +60,17 @@ Install all dependencies via the following commands. **Be sure to watch for erro
 ```
 sudo apt-get install python3-pip
 ```
-* Install HTTP Parser and NumPy dependencies via pip:
+* Install HTTP Parser, NumPy, and zerconf Python dependencies via pip:
 ```
-pip3 install http-parser numpy
+pip3 install http-parser numpy zeroconf
+```
+* Install Snap:
+```
+sudo apt install snapd
+```
+* Install Avahi (multicast DNS daemon):
+```
+sudo snap install avahi
 ```
 * Compile and install OpenCV from source - [Follow this guide...] (https://docs.opencv.org/master/d2/de6/tutorial_py_setup_in_ubuntu.html) Compiling may take a couple of hours.
 ```
