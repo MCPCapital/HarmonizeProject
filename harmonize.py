@@ -293,8 +293,7 @@ def averageimage():
         cords[num] = cds
         bds = [cds[2] - dist, cds[2] + dist, cds[0] - dist, cds[0] + dist]
         bds = list(map(int, bds))
-        bds = list(map(lambda x: 0 if x < 0 else 
-            x, bds))
+        bds = list(map(lambda x: 0 if x < 0 else x, bds))
         #bounds.append(bds)
         bounds[num] = bds
    
