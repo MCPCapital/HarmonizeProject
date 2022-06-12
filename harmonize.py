@@ -25,10 +25,15 @@ import threading
 import fileinput
 import numpy as np
 import cv2
+import re
 
 from pathlib import Path
 from http_parser.parser import HttpParser
 from zeroconf import ServiceBrowser, ServiceListener, Zeroconf
+
+# suppress SSL certificate verification warning
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 class MyListener(ServiceListener):
     bridgelist = []
@@ -41,7 +46,7 @@ class MyListener(ServiceListener):
     def add_service(self, zeroconf, type, name):
         info = zeroconf.get_service_info(type, name)
         self.bridgelist.append(info.parsed_addresses()[0])
-        print("INFO: Detected %s via mDNS at IP address: %s" % (name, info.parsed_addresses()[0]))
+        verbose("INFO: Detected %s via mDNS at IP address: %s" % (name, info.parsed_addresses()[0]))
 
 zeroconf = Zeroconf()
 listener = MyListener()
@@ -127,21 +132,26 @@ if hueip is None:
     sys.exit("ERROR: Hue bridge not found. Please ensure proper network connectivity and power connection to the hue bridge.")
 verbose("INFO: Hue bridge located at:", hueip)
 
-verbose("Checking whether Harmonizer application is already registered (Looking for client.json file).") #Check if the username and client key have already been saved
+baseurl = "http://{}/api".format(hueip)
+base_url_v2 = "https://{}".format(hueip)
+clientdata = []
+
+verbose("Checking whether Harmonizer application is already registered (Looking for client.json file).")
 
 def register():
+    global clientdata
     print("INFO: Device not registered on bridge")
     payload = {"devicetype":"harmonizehue","generateclientkey":True}
-    print("INFO: You have 45 seconds to push the button! Checking for button press every 5 seconds.")
+    print("INFO: You have 60 seconds to press the large button on the bridge! Checking for button press every 5 seconds.")
     attempts = 1
-    while attempts < 10:
+    while attempts < 12:
         r = requests.post(("http://%s/api" % (hueip)), json.dumps(payload))
         bridgeresponse = json.loads(r.text)
         if  'error' in bridgeresponse[0]:
             print(attempts,"WARNING: {0}".format(bridgeresponse[0]['error']['description']))
         elif('success') in bridgeresponse[0]:
+            # generate client.json file
             clientdata = bridgeresponse[0]["success"]
-            did_get_username = True
             f = open("client.json", "w")
             f.write(json.dumps(clientdata))
             f.close()
@@ -161,11 +171,6 @@ if Path("./client.json").is_file():
     clientdata = json.loads(jsonstr)
     f.close()
     verbose("INFO: Client data found from client.json file.")
-    
-    global baseurl, base_url_v2
-    baseurl = "http://{}/api".format(hueip)
-    base_url_v2 = "https://{}".format(hueip)
-    
     setupurl = baseurl + "/" + clientdata['username']
     r = requests.get(url = setupurl)
     setupresponse = dict()
@@ -178,51 +183,40 @@ if Path("./client.json").is_file():
 else:
     register()
 
+print(clientdata)
 verbose("Requesting bridge information...") 
 r = requests.get(url = baseurl+"/config")
 jsondata = r.json()
-if jsondata["apiversion"]<"1.22": #Ensure the bridge supports streaming via API v1
-    sys.exit("ERROR: Firmware API version on the bridge is outdated. Upgrade it using the Hue app. API version must be 1.22 or greater.")
-verbose("INFO: The bridge is capable of streaming via APIv1. API version {} detected...".format(jsondata["apiversion"]))
-if jsondata["swversion"]<"1948086000": #Check if the bridge supports streaming via API v2
-    print("DEPRECATION NOTICE: Firmware software version on the bridge is outdated and does not support APIv2. Consider upgrading it using Hue app. Software version must be 194808600 or greater.")
+if jsondata["swversion"]<"1948086000": #Check if the bridge supports streaming via API v1/v2
+    sys.exit("ERROR: Firmware software version on the bridge is outdated and does not support streaming on APIv1/v2. Upgrade it using Hue app. Software version must be 194808600 or greater.")
 else:
     verbose("INFO: The bridge is capable of streaming via APIv2. Firmware version {} detected...".format(jsondata["swversion"]))
 
-######### We're connected! - Now lets find entertainment areas in the list of groups ##########
-r = requests.get(url = baseurl+"/{}/groups".format(clientdata['username']))
-jsondata = r.json()
-
-groups = dict()
+######### We're connected! - Now lets find entertainment areas in the list of groups via API v2 ##########
+print("Querying hue bridge for entertainment areas on local network.")
+r_v2 = requests.get("https://{}/clip/v2/resource/entertainment_configuration".format(hueip), verify=False, headers={"hue-application-key":clientdata['username']})
+json_data_v2 = json.loads(r_v2.text)
 groupid = commandlineargs.groupid
 
-if groupid is not None:
-    verbose("Checking for entertainment group {}".format(groupid))
-else:
-    verbose("Checking for entertainment groups (not none)")
-
-for k in jsondata:  #These 3 sections isolate Entertainment areas from normal groups (like rooms)
-    if jsondata[k]["type"]=="Entertainment":
-        if groupid is None or k==groupid:
-            groups[k] = jsondata[k]
-
-if len(groups)==0: #No groups or null = exit
+if len(json_data_v2['data'])==0: #No entertainment areas or null = exit
     if groupid is not None:
-        sys.exit("Entertainment group not found, set one up in the Hue App according to the instructions on github.")
+        sys.exit("Entertainment area specified in command line argument groupid not found.")
     else:
-        sys.exit("Entertainment group not found, set one up in the Hue App according to the instructions on github.")
+        sys.exit("No Entertainment areas found. Please ensure at least one has been created in the Hue App.")
 
-if len(groups)>1:
-    eprint("Multiple entertainment groups found (", groups,") specify which with --groupid")
-    for g in groups:
-        eprint("{} = {}".format(g,groups[g]["name"]))
-    groupid = input()
-    print("You selected groupid ", groupid)
-    #sys.exit()
+if len(json_data_v2['data'])==1:
+    groupid = re.findall("\d+", json_data_v2['data'][0]['id_v1'])[0]
+    print("groupid = ",groupid)
 
-if groupid is None:
-    groupid=next(iter(groups))
-verbose("Using groupid={}".format(groupid))
+if len(json_data_v2['data'])>1:
+
+    print("Multiple Entertainment areas found. Type in the number corresponding to the area you wish to use and hit Enter. (You can specify which with the optional argument --groupid ).")
+    for value in json_data_v2['data']:
+        print("[ " + str(re.findall("\d+",value['id_v1'])[0]) + " ]: " + str(value['name']))
+    if groupid is None:
+        groupid = input()
+
+print("Using Entertainment area with group_id: {}".format(groupid))
 
 #### Lets get the lights & their locations in our selected group and enable streaming ######
 for l in jsondata:

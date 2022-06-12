@@ -2,15 +2,11 @@ Harmonize Project *for Philips Hue* [![ForTheBadge built-with-love](http://ForTh
 ============================
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)<!--[![Trust](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fastronomer.ullaakut.eu%2Fshields%3Fowner%3DMCPCapital%26name%3DHarmonizeProject)](#)--> [![Open Source Love svg2](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://matthewpilsbury.com)
 
-Harmonize Project is a low latency video analysis and pass-through application built in Python which alters Philips Hue lights based on their location relative to a screen; creating an ambient lighting effect and expanding content past the boundaries of a screen. 
+Harmonize Project is a low-latency video analysis and pass-through application built in Python which alters Philips Hue lights based on their location relative to a screen; creating an ambient lighting effect and expanding content past the boundaries of a screen. 
 
 Check out our Reddit thread [here](https://www.reddit.com/r/Hue/comments/i1ngqt/release_harmonize_project_sync_hue_lights_with/) and watch the demo below! Electromaker explains how our application works at a high level in his podcast [here!](https://youtu.be/tYnvYYWedVc?t=1790)
 
 [![Harmonize Project Demo Video](http://img.youtube.com/vi/OkyUntgiYzQ/0.jpg)](http://www.youtube.com/watch?v=OkyUntgiYzQ "Harmonize Project Demo Video")
-
-[![GitHub Deleted our Account](https://matthewpilsbury.com/github-deleted.PNG)](#)
-
-GitHub deleted our account at 250 stars! Prior to deletion, we were in the top 20,000 repositories and top 7,000 Python-based projects on GitHub. Sorry for the interruption and loss of issues.
 
 Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Signify or Philips Hue. Hue and Philips Hue are trademarks of Signify.
 
@@ -24,13 +20,22 @@ Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Sign
 * Sending 50-75 color updates per second
 
 # Requirements 
+
+**Lights:**
+
+* Minimum of one compatible Hue light required (obviously)
+
+**Minimum hardware:**
+
+* Hue bridge using firmware version 194808600 or greater
+
 **Hardware Option A (Tested on Raspberry Pi 4B):**
-* RAM: 256MB Free Minimum (512MB recommended)
-* CPU: 1.5GHz+, 4 Cores strongly recommended due to running three simultaneous threads.
+* RPi RAM: 256MB Free Minimum (512MB recommended)
+* RPi CPU: 1.5GHz+, 4 Cores strongly recommended due to running three simultaneous threads.
 * HDMI Splitter (Must be able to output 4k & 1080/720p simultaneously) [Here is a good one for $25](https://www.amazon.com/gp/product/B07YTWV8PR/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1), though it breaks HDR when downscaling output 2. The goal here is one output of 4K and another output of 1080/720p.
 * USB3.0 HDMI Capture Card (Capable of capturing 720/1080p; delay should be 50ms or under.) [I got this when it was $45.](https://www.amazon.com/gp/product/B07Z7RNDBZ/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1) A similar one should be fine. These are untested: [Panoraxy](https://www.amazon.com/Panoraxy-Capture-1080PFHD-Broadcast-Camcorder/dp/B088PYDJ22/ref=sr_1_21?dchild=1&keywords=hdmi+to+usb+3.0+capture&qid=1596386201&refinements=p_36%3A1253504011%2Cp_85%3A2470955011&rnid=2470954011&rps=1&s=electronics&sr=1-21) | [Aliexpress (This shape/style tends to perform well.)](https://www.aliexpress.com/item/4000834496145.html?spm=a2g0o.productlist.0.0.27a14df5Wc5Qoc&algo_pvid=e745d484-c811-4d2e-aebd-1403e862f148&algo_expid=e745d484-c811-4d2e-aebd-1403e862f148-15&btsid=0ab50f4415963867142714634e7e8e&ws_ab_test=searchweb0_0,searchweb201602_,searchweb201603_)
 
-**Hardware Option B (for A/V receivers with 2 or more HDMI outputs):**
+**Hardware Option B (for A/V receivers with 2 or more HDMI outputs, also tested on Raspberry Pi 4B):**
 * Raspberry Pi 4B kit running with recommended power supply. This hardware option was tested on the 8GB model running Ubuntu 64-bit OS (see software setup option B below).
 * HDMI Splitter (tested on U9 ViewHD Latest 4K 1x2 HDMI Splitter 1 in 2 Out, Model U9-Pluto v1.4)
 * USB3.0 HDMI Capture Card (tested on Elgato Cam Link 4k)
@@ -117,7 +122,7 @@ git clone https://github.com/MCPCapital/HarmonizeProject.git
 
 **First-Time Run Instructions:**
 
-* If you have not set up a bridge before, the program will attempt to register you on the bridge. You will have 45 second to push the button on the bridge. *Current Bug* - After registering, the script will store the clientdata but fail & exit. *Workaround* - Simply run the script again since the data was saved.
+* If you have not set up a bridge before, the program will attempt to register you on the bridge. You will have 60 seconds to push the button on the bridge.
 * If multiple bridges are found, you will be given the option to select one. You will have to do this every time if you have multiple bridges (for now).
 * If multiple entertainment areas are found, you will be given the option to select one. You can also enter this as a command line argument.
 
@@ -135,7 +140,7 @@ git clone https://github.com/MCPCapital/HarmonizeProject.git
 **Command line arguments:**
 
 * `-v `     Display verbose output
-* `-g # `   Use specific entertainment group number (#)
+* `-g # `   Use specific Entertainment area group number (#)
 * `-s `     Enable latency optimization for single light source centered behind display
 
 **Configurable values within the script:** (Advanced users only)
