@@ -6,7 +6,7 @@
 ########## MCP Capital, LLC  ###########
 ########################################
 # Github.com/MCPCapital/harmonizeproject
-# Script Last Updated - Release 1.3.0
+# Script Last Updated - Release 2.0.0
 ########################################
 ### -v to enable verbose messages     ##
 ### -g # to pre-select a group number ##
@@ -30,6 +30,7 @@ import re
 from pathlib import Path
 from http_parser.parser import HttpParser
 from zeroconf import ServiceBrowser, ServiceListener, Zeroconf
+from termcolor import colored
 
 # suppress SSL certificate verification warning
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -38,10 +39,10 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 class MyListener(ServiceListener):
     bridgelist = []
     def update_service(self, zeroconf, type, name):
-        print(f"Bridge updated")
+        print(f"INFO: Received Bridge mDNS update.")
 
     def remove_service(self, zeroconf, type, name):
-        print(f"Bridge removed")
+        print(f"INFO: Bridge removed from mDNS network.")
 
     def add_service(self, zeroconf, type, name):
         info = zeroconf.get_service_info(type, name)
@@ -82,8 +83,8 @@ def findhue(): #Auto-find bridges on mDNS network
         print("ERROR: Cannot create mDNS service discovery browser: {}".format(exc))
         sys.exit(1)
     
-    # wait 1 sec for mDNS discovery lookup
-    time.sleep(1)
+    # wait half a second for mDNS discovery lookup
+    time.sleep(0.5)
     
     if len(listener.bridgelist) == 1:
         print("INFO: Single Hue bridge detected on network via mDNS.")
@@ -126,14 +127,13 @@ def findhue(): #Auto-find bridges on mDNS network
     
     return None
 
-print("--- Starting Harmonizer application ---")
+print(colored('--- Starting Harmonize Project ---','green'))
 hueip = findhue() or None
 if hueip is None:
     sys.exit("ERROR: Hue bridge not found. Please ensure proper network connectivity and power connection to the hue bridge.")
 verbose("INFO: Hue bridge located at:", hueip)
 
 baseurl = "http://{}/api".format(hueip)
-base_url_v2 = "https://{}".format(hueip)
 clientdata = []
 
 verbose("Checking whether Harmonizer application is already registered (Looking for client.json file).")
@@ -148,7 +148,7 @@ def register():
         r = requests.post(("http://%s/api" % (hueip)), json.dumps(payload))
         bridgeresponse = json.loads(r.text)
         if  'error' in bridgeresponse[0]:
-            print(attempts,"WARNING: {0}".format(bridgeresponse[0]['error']['description']))
+            print("WARNING {}: {}".format(attempts, bridgeresponse[0]['error']['description']))
         elif('success') in bridgeresponse[0]:
             # generate client.json file
             clientdata = bridgeresponse[0]["success"]
@@ -183,12 +183,11 @@ if Path("./client.json").is_file():
 else:
     register()
 
-print(clientdata)
 verbose("Requesting bridge information...") 
 r = requests.get(url = baseurl+"/config")
 jsondata = r.json()
 if jsondata["swversion"]<"1948086000": #Check if the bridge supports streaming via API v1/v2
-    sys.exit("ERROR: Firmware software version on the bridge is outdated and does not support streaming on APIv1/v2. Upgrade it using Hue app. Software version must be 194808600 or greater.")
+    sys.exit("ERROR: Firmware software version on the bridge is outdated and does not support streaming on APIv1/v2. Upgrade it using Hue app. Software version must be 1.XX.194808600 or greater.")
 else:
     verbose("INFO: The bridge is capable of streaming via APIv2. Firmware version {} detected...".format(jsondata["swversion"]))
 
@@ -196,6 +195,7 @@ else:
 print("Querying hue bridge for entertainment areas on local network.")
 r_v2 = requests.get("https://{}/clip/v2/resource/entertainment_configuration".format(hueip), verify=False, headers={"hue-application-key":clientdata['username']})
 json_data_v2 = json.loads(r_v2.text)
+#print(json_data_v2)
 groupid = commandlineargs.groupid
 
 if len(json_data_v2['data'])==0: #No entertainment areas or null = exit
@@ -206,6 +206,7 @@ if len(json_data_v2['data'])==0: #No entertainment areas or null = exit
 
 if len(json_data_v2['data'])==1:
     groupid = re.findall("\d+", json_data_v2['data'][0]['id_v1'])[0]
+    entertainment_id = json_data_v2['data'][0]['id']
     print("groupid = ",groupid)
 
 if len(json_data_v2['data'])>1:
@@ -218,19 +219,36 @@ if len(json_data_v2['data'])>1:
 
 print("Using Entertainment area with group_id: {}".format(groupid))
 
+# find entertainment_id from legacy group_id
+for value in json_data_v2['data']:
+    if groupid == re.findall("\d+",value['id_v1'])[0]:
+        entertainment_id = str(value['id'])
+        verbose("Selected Entertainment UDID:",entertainment_id)
+
 #### Lets get the lights & their locations in our selected group and enable streaming ######
-for l in jsondata:
-    r = requests.get(url = baseurl+"/{}/groups/{}".format(clientdata['username'],groupid))
-    jsondata = r.json()
-    light_locations = dict()
-    light_locations = jsondata['locations']
-verbose("These are the lights and locations found: \n", light_locations)
+r_v2 = requests.get("https://{}/clip/v2/resource/entertainment_configuration/{}".format(hueip,entertainment_id), verify=False, headers={"hue-application-key":clientdata['username']}) # via APIv2
+lights_data = json.loads(r_v2.text)
+lights_dict = dict()
+if len(lights_dict) > 20:
+   sys.exit("ERROR: {} light(s) found. The maximum allowable is up to 20 per Entertainment area. Exiting application.".format(len(lights_dict)))
+
+for index, value in enumerate(lights_data['data'][0]['channels']):
+    #print(str(index) + " and " + str(value['position']))
+    lights_dict.update({str(index): [value['position']['x'],value['position']['y'], value['position']['z']]})
+verbose("INFO: {} light(s) found in selected Entertainment area. Locations [x,y,z] are as follows: \n".format(len(lights_dict)), lights_dict)
+
+# Retrieve PSK identify for APIv2 
+r_v2 = requests.get("https://{}/auth/v1".format(hueip), verify=False, headers={"hue-application-key":clientdata['username']}) # via APIv2
+hue_app_id = r_v2.headers['hue-application-id']
+verbose("Hue application id:",hue_app_id)
 
 ##### Setting up streaming service and calling the DTLS handshake command ######
-verbose("Enabling streaming on your Entertainment area") #Allows us to send UPD to port 2100
-r = requests.put(url = baseurl+"/{}/groups/{}".format(clientdata['username'],groupid),json={"stream":{"active":True}})
-jsondata = r.json()
-######This is used to execute the command near the bottom of this document to create the DTLS handshake with the bridge on port 2100
+verbose("Enabling streaming to your Entertainment area") #Allows us to send UPD packets to port 2100
+r_v2 = requests.put("https://{}/clip/v2/resource/entertainment_configuration/{}".format(hueip,entertainment_id), json={"action":"start"}, verify=False, headers={"hue-application-key":clientdata['username']}) # via APIv2
+jsondata = r_v2.json()
+verbose(jsondata)
+
+###### This is used to execute the command near the bottom of this document to create the DTLS handshake with the bridge on port 2100
 def execute(cmd):
     popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
     verbose("Executing send commands... Cross your fingers")
@@ -249,6 +267,7 @@ def stdin_to_buffer():
         print(line)
         if stopped:
             break
+
 ######################################################
 ################# Setup Complete #####################
 ######################################################
@@ -259,22 +278,21 @@ def stdin_to_buffer():
 
 def averageimage():
 ########## Scales up locations to identify the nearest pixel based on lights' locations #######
-    time.sleep(1.2) #wait for video size to be defined
-    for x, coords in light_locations.items():
+    time.sleep(1.0) #wait for video size to be defined
+    for x, coords in lights_dict.items():
         coords[0] = ((coords[0])+1) * w//2 #Translates x value and resizes to video aspect ratio
         coords[2] = (-1*(coords[2])+1) * h//2 #Flips y, translates, and resize to vid aspect ratio
         
     #for x, y in light_locations.items(): #Defines locations by light
-        #time.sleep(.01)
-    scaled_locations = list(light_locations.items()) #Makes it a list of locations by light
-    verbose("Lights and locations (in order) on TV array after math are: ", scaled_locations)
+    scaled_locations = list(lights_dict.items()) #Makes it a list of locations by light
+    verbose("INFO: Lights and locations (in order) scaled using video resolution input are as follows: ", scaled_locations)
   
 #### This section assigns light locations to variable light1,2,3...etc. in JSON order
     avgsize = w/2 + h/2
-    verbose('avgsize is', avgsize)
+    verbose('INFO: Average number of total pixels of video area to be analyzed is:', avgsize)
     breadth = .15 #approx percent of the screen outside the location to capture
     dist = int(breadth*avgsize) #Proportion of the pixels we want to average around in relation to the video size
-    verbose('Distance from relative location is: ', dist)
+    verbose('INFO: Distance in pixels from relative location is:', dist)
 
     global cords #array of coordinates
     global bounds #array of bounds for each coord, each item is formatted as [top, bottom, left, right]
@@ -283,12 +301,10 @@ def averageimage():
     cords = {}
     bounds = {}
     for num, cds in scaled_locations:
-        #cords.append(cds)
         cords[num] = cds
         bds = [cds[2] - dist, cds[2] + dist, cds[0] - dist, cds[0] + dist]
         bds = list(map(int, bds))
         bds = list(map(lambda x: 0 if x < 0 else x, bds))
-        #bounds.append(bds)
         bounds[num] = bds
    
     global rgb,rgb_bytes #array of rgb values, one for each light
@@ -299,7 +315,6 @@ def averageimage():
 # Constantly sets RGB values by location via taking average of nearby pixels
     while not stopped:
         for x, bds in bounds.items():
-            #area[x] = rgbframe[bds[2]:bds[3], bds[0]:bds[1], :]
             area[x] = rgbframe[bds[0]:bds[1], bds[2]:bds[3], :]
             rgb[x] = cv2.mean(area[x])
         for x, c in rgb.items():
@@ -313,14 +328,18 @@ def averageimage():
 ######### Now that weve defined our RGB values as bytes, we define how we pull values from the video analyzer output
 def cv2input_to_buffer(): ######### Section opens the device, sets buffer, pulls W/H
     global w,h,rgbframe, channels
-    cap = cv2.VideoCapture(0) #variable cap is our raw video input
+    try:
+        #cap = cv2.VideoCapture(0,cv2.CAP_FFMPEG) #variable cap is our raw video input
+        cap = cv2.VideoCapture(0,cv2.CAP_GSTREAMER) #variable cap is our raw video input
+    except:
+        sys.exit("ERROR: Issue enabling video capture")
     if cap.isOpened(): # Try to get the first frame
-        verbose('Capture Device Opened')
+        verbose('INFO: Capture device opened using OpenCV.')
     else: #Makes sure we can access the device
-        sys.exit('Unable to open Capture Device') #quit
+        sys.exit('ERROR: Unable to open capture device.') #quit
     w  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))  # gets video width
     h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)) # gets video height
-    verbose('Video Shape is: ', w, h) #prints video shape
+    verbose("INFO: Video frame size (W by H): {} by {}".format(w, h)) #prints video frame size
 
 ########## This section loops & pulls re-colored frames and alwyas get the newest frame 
     cap.set(cv2.CAP_PROP_BUFFERSIZE,0) # No frame buffer to avoid lagging, always grab newest frame
@@ -347,17 +366,18 @@ def buffer_to_light(proc): #Potentially thread this into 2 processes?
     while not stopped:
         bufferlock.acquire()
         
-        message = bytes('HueStream','utf-8') + b'\1\0\0\0\0\0\0'
+        message = bytes('HueStream','utf-8') + b'\2\0\0\0\0\0\0' + bytes(entertainment_id,'utf-8')
+
         if is_single_light:
             single_light_bytes = bytearray([int(channels[2]/2), int(channels[2]/2), int(channels[1]/2), int(channels[1]/2), int(channels[0]/2), int(channels[0]/2),] ) # channels corrected here from BGR to RGB
-            message += b'\0\0' + bytes(chr(int(1)), 'utf-8') + single_light_bytes
+            message += bytes(chr(int(1)), 'utf-8') + single_light_bytes
         else:
             for i in rgb_bytes:
-                message += b'\0\0' + bytes(chr(int(i)), 'utf-8') + rgb_bytes[i]
+                message += bytes(chr(int(i)), 'utf-8') + rgb_bytes[i]
  
         bufferlock.release()
         proc.stdin.write(message.decode('utf-8','ignore'))
-        time.sleep(.01) #0.01 to 0.02 (slightly under 100 or 50 messages per sec // or (.015 = ~66.6))
+        time.sleep(.015) #0.01 to 0.02 (slightly under 100 or 50 messages per sec // or (.015 = ~66.6))
         proc.stdin.flush()
         #verbose('Wrote message and flushed. Briefly waiting') #This will verbose after every send, spamming the console.
 
@@ -369,35 +389,50 @@ def buffer_to_light(proc): #Potentially thread this into 2 processes?
 try:
     try:
         threads = list()
-        print("Starting computer vision engine...")
+        print(colored('Starting computer vision engine...','cyan'))
+        verbose("OpenCV version:",cv2.__version__)
         try:
             subprocess.check_output("ls -ltrh /dev/video0",shell=True)
         except subprocess.CalledProcessError:                                                                                                  
             print("--- ERROR: Video capture card not detected on /dev/video0 ---")
         else:
             print("--- INFO: Detected video capture card on /dev/video0 ---")
+
+            # Check to see if video stream is actually being captured properly before continuing.
+            try:
+                #cap = cv2.VideoCapture(0,cv2.CAP_FFMPEG)
+                cap = cv2.VideoCapture(0,cv2.CAP_GSTREAMER) #variable cap is our raw video input
+            except:
+                sys.exit("ERROR: Issue enabling video capture")
+            if not cap.isOpened(): # Try to get the first frame
+                sys.exit('ERROR: Unable to open capture device.') #quit
+            w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))  # gets video width
+            try: w
+            except NameError: sys.exit("Error capturing stream. Exiting application.")
+            cap.release()
+
             t = threading.Thread(target=cv2input_to_buffer)
             t.start()
             threads.append(t)
             time.sleep(.75)
-            if (commandlineargs.single_light is True) and (len(light_locations)==1):
+            if (commandlineargs.single_light is True) and (len(lights_dict)==1):
                 is_single_light = True
                 print("Enabled optimization for single light source") # averager thread is not utilized
             else:
                 is_single_light = False
-                verbose("Starting image averager...")
+                verbose("Starting image analyzer...")
                 t = threading.Thread(target=averageimage)
                 t.start()
                 threads.append(t)
             time.sleep(.25) #Initialize and find bridge IP before creating connection
-            verbose("Opening SSL stream to lights...")
-            cmd = ["openssl","s_client","-dtls1_2","-cipher","PSK-AES128-GCM-SHA256","-psk_identity",clientdata['username'],"-psk",clientdata['clientkey'], "-connect", hueip+":2100"]
+            verbose("Opening an SSL packet stream to lights on network...")
+            cmd = ["openssl","s_client","-dtls1_2","-cipher","PSK-AES128-GCM-SHA256","-psk_identity",hue_app_id,"-psk",clientdata['clientkey'], "-connect", hueip+":2100"]
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
             t = threading.Thread(target=buffer_to_light, args=(proc,))
             t.start()
             threads.append(t)
-
-            input("Press return to stop\n") # Allow us to exit easily
+            print(colored('Press Return to stop streaming.','yellow'))
+            input() # Allow us to exit easily
             stopped=True
             for t in threads:
                 t.join()
@@ -408,6 +443,6 @@ try:
 finally: #Turn off streaming to allow normal function immedietly
     zeroconf.close()
     print("Disabling streaming on Entertainment area")
-    r = requests.put(url = baseurl+"/{}/groups/{}".format(clientdata['username'],groupid),json={"stream":{"active":False}}) 
+    r_v2 = requests.put("https://{}/clip/v2/resource/entertainment_configuration/{}".format(hueip,entertainment_id), json={"action":"stop"}, verify=False, headers={"hue-application-key":clientdata['username']})
     jsondata = r.json()
     verbose(jsondata)

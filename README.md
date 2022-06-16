@@ -2,7 +2,7 @@ Harmonize Project *for Philips Hue* [![ForTheBadge built-with-love](http://ForTh
 ============================
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)<!--[![Trust](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fastronomer.ullaakut.eu%2Fshields%3Fowner%3DMCPCapital%26name%3DHarmonizeProject)](#)--> [![Open Source Love svg2](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://matthewpilsbury.com)
 
-Harmonize Project is a low-latency video analysis and pass-through application built in Python which alters Philips Hue lights based on their location relative to a screen; creating an ambient lighting effect and expanding content past the boundaries of a screen. 
+Harmonize Project is a low-latency video analysis and pass-through application built with Python which connects to Philips Hue lights and lightstrips based on their location relative to your TV screen; creating an amazing ambient lighting effect! 
 
 Check out our Reddit thread [here](https://www.reddit.com/r/Hue/comments/i1ngqt/release_harmonize_project_sync_hue_lights_with/) and watch the demo below! Electromaker explains how our application works at a high level in his podcast [here!](https://youtu.be/tYnvYYWedVc?t=1790)
 
@@ -11,6 +11,7 @@ Check out our Reddit thread [here](https://www.reddit.com/r/Hue/comments/i1ngqt/
 Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Signify or Philips Hue. Hue and Philips Hue are trademarks of Signify.
 
 # New Features
+* v2.0: Support for gradient lightstrips is now available!
 * v1.3: Added multicast DNS discovery for detecting bridge
 * v1.2: Latency now optimized for a single light source centered behind display (use the -s argument at the command prompt to enable)
 
@@ -23,7 +24,7 @@ Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Sign
 
 **Lights:**
 
-* Minimum of one compatible Hue light required (obviously)
+* Minimum of one compatible Hue light required (obviously). Limited to a maximum of 20 lights for streaming. A gradient lightstrip counts as 7 lights.
 
 **Minimum hardware:**
 
@@ -44,19 +45,7 @@ Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Sign
 
 **Software Setup Option A:**
 
-Download the latest scripts and install all dependencies via the following commands. **Be sure to watch for errors!** You will need about 1GB of free space. The script can run for up to an hour.
-
-```
-git clone https://github.com/MCPCapital/HarmonizeProject.git
-cd HarmonizeProject
-sudo ./setup.sh
-```
-
-**Software Setup Option B:**
-
-**Ubuntu Desktop 20.04 64-bit with Python v3.8.5**
-
-**Ubuntu Desktop 21.04 64-bit with Python v3.9.5 (most recent version tested)**
+**Ubuntu Desktop 22.04 LTS 64-bit with Python v3.10.4 (most recent version tested)**
 
 Install OS from Raspberry Pi Imager software onto SD card (see https://www.raspberrypi.org/software/). Install SD card and boot.
 
@@ -68,7 +57,7 @@ sudo apt-get install python3-pip
 ```
 * Install HTTP Parser, NumPy, and zerconf Python dependencies via pip:
 ```
-pip3 install http-parser numpy zeroconf
+pip3 install http-parser numpy zeroconf termcolor
 ```
 * Install Snap:
 ```
@@ -78,11 +67,15 @@ sudo apt install snapd
 ```
 sudo snap install avahi
 ```
-* Compile and install OpenCV from source - [Follow this guide...] (https://docs.opencv.org/master/d2/de6/tutorial_py_setup_in_ubuntu.html) Compiling may take a couple of hours.
+* Install Screen (SSH multiple window manager):
+```
+sudo apt install screen
+```
+* Compile and install OpenCV 4.6+ from source - [Follow this guide...] (https://docs.opencv.org/master/d2/de6/tutorial_py_setup_in_ubuntu.html) Compiling may take a couple of hours. Note that if you upgrade Ubuntu to a new release you may need to completely uninstall, recompile, and reinstall OpenCV.
 ```
 sudo apt-get install cmake
 sudo apt-get install gcc g++
-sudo apt-get install python3-dev python3-numpy
+sudo apt-get install python3-dev python3-numpy libpython3-all-dev
 sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev
 sudo apt-get install libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev
 sudo apt-get install libgtk-3-dev
@@ -90,11 +83,21 @@ sudo apt-get install git
 git clone https://github.com/opencv/opencv.git
 mkdir opencv/build
 cd opencv/build
-cmake ../
-make
+cmake -D CMAKE_INSTALL_PREFIX=/usr/local -D BUILD_opencv_java=OFF -D BUILD_opencv_python2=OFF -D BUILD_opencv_python3=ON -D PYTHON_DEFAULT_EXECUTABLE=$(which python3) -D INSTALL_C_EXAMPLES=OFF -D INSTALL_PYTHON_EXAMPLES=ON -D BUILD_EXAMPLES=ON -D WITH_CUDA=OFF -D BUILD_TESTS=OFF -D BUILD_PERF_TESTS=OFF ..
+make -j4
 sudo make install
 cd ../..
 git clone https://github.com/MCPCapital/HarmonizeProject.git
+```
+
+**Software Setup Option B (currently unsupported):**
+
+Download the latest scripts and install all dependencies via the following commands. **Be sure to watch for errors!** You will need about 1GB of free space. The script can run for up to an hour.
+
+```
+git clone https://github.com/MCPCapital/HarmonizeProject.git
+cd HarmonizeProject
+sudo ./setup.sh
 ```
 
 **Hardware Setup Option A:**
@@ -145,9 +148,9 @@ git clone https://github.com/MCPCapital/HarmonizeProject.git
 
 **Configurable values within the script:** (Advanced users only)
 
-* Line 237 - `breadth` - determines the % from the edges of the screen to use in calculations. Default is 15%. Lower values can result in less lag time, but less color accuracy.
-* Line 315 - `time.sleep(0.01)` - Determines how frequently messages are sent to the bridge. Keep in mind the rest of the function takes some time to run in addition to this sleep command. Bridge requests are capped by Philips at a rate of 60/s (1 per ~16.6ms) and the excess are dropped.
-* Run with `sudo` to give Harmonize higher priority over other CPU tasks.
+* Line 293 - `breadth` - determines the % from the edges of the screen to use in calculations. Default is 15%. Lower values can result in less lag time, but less color accuracy.
+* Line 380 - `time.sleep(0.015)` - Determines how frequently messages are sent to the bridge. Keep in mind the rest of the function takes some time to run in addition to this sleep command. Bridge requests are capped by Philips at a rate of 60/s (1 per ~16.6ms) and the excess are dropped.
+* Utilize the `nice` command to give Harmonize higher priority over other CPU tasks.
 
 # Troubleshooting
 
@@ -156,7 +159,7 @@ git clone https://github.com/MCPCapital/HarmonizeProject.git
 * w, h, or rgbframe not defined - Increase the waiting time from 0.75 seconds - Line 330 {time.sleep(.75)} *This is a known bug (race condition).
 * python3-opencv installation fails - Compile from source - [Follow this guide.](https://pimylifeup.com/raspberry-pi-opencv/)
 * Sanity check: The output of the command `ls -ltrh /dev/video*` should provide a list of results that includes /dev/video0 when the OS properly detects the video capture card.
-* Many questions are answered on our Reddit release thread [here.](https://www.reddit.com/r/Hue/comments/i1ngqt/release_harmonize_project_sync_hue_lights_with/) New issues should be raised on GitLab.
+* Many questions are answered on our Reddit release thread [here.](https://www.reddit.com/r/Hue/comments/i1ngqt/release_harmonize_project_sync_hue_lights_with/) New issues should be raised on Github.
 
 # Contributions & License
 
