@@ -58,6 +58,7 @@ parser.add_argument("-g","--groupid", dest="groupid")
 parser.add_argument("-b","--bridgeid", dest="bridgeid")
 parser.add_argument("-i","--bridgeip", dest="bridgeip")
 parser.add_argument("-s","--single_light", dest="single_light", action="store_true")
+parser.add_argument("-w","--video_wait_time", dest="video_wait_time", type=float, default=.75)
 commandlineargs = parser.parse_args()
 
 is_single_light = False
@@ -427,7 +428,7 @@ try:
             t = threading.Thread(target=cv2input_to_buffer)
             t.start()
             threads.append(t)
-            time.sleep(.75)
+            time.sleep(commandlineargs.video_wait_time)
             if (commandlineargs.single_light is True) and (len(lights_dict)==1):
                 is_single_light = True
                 print("Enabled optimization for single light source") # averager thread is not utilized
