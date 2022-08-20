@@ -146,6 +146,8 @@ sudo ./setup.sh
 
 * `-v `     Display verbose output
 * `-g # `   Use specific Entertainment area group number (#)
+* `-b <id>` Use specified bridge ID
+* `-i <ip>` Use specified bridge IP address
 * `-s `     Enable latency optimization for single light source centered behind display
 
 **Configurable values within the script:** (Advanced users only)

@@ -56,6 +56,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-v","--verbose", dest="verbose", action="store_true")
 parser.add_argument("-g","--groupid", dest="groupid")
 parser.add_argument("-b","--bridgeid", dest="bridgeid")
+parser.add_argument("-i","--bridgeip", dest="bridgeip")
 parser.add_argument("-s","--single_light", dest="single_light", action="store_true")
 commandlineargs = parser.parse_args()
 
@@ -108,14 +109,26 @@ def findhue(): #Auto-find bridges on mDNS network
                 if b["id"] == commandlineargs.bridgeid:
                     return bridgelist[idx]['internalipaddress']
             sys.exit("ERROR: Bridge {} was not found".format(commandlineargs.bridgeid))
+        elif commandlineargs.bridgeip is not None:
+            for idx, b in enumerate(bridgelist):
+                if b["internalipaddress"] == commandlineargs.bridgeip:
+                    return commandlineargs.bridgeip
+            sys.exit("ERROR: Bridge {} was not found".format(commandlineargs.bridgeip))
     
     # if multiple bridges detected via mDNS
     if len(listener.bridgelist)>1:
             print("Multiple bridges found via mDNS lookup. Key a number corresponding to the list of bridges below:")
             for index, value in enumerate(listener.bridgelist):
                 print("[" + str(index+1) + "]:", value)
-            bridge = int(input())
-            return listener.bridgelist[bridge-1]
+
+            if commandlineargs.bridgeip is not None:
+                for idx, b in enumerate(listener.bridgelist):
+                    if b == commandlineargs.bridgeip:
+                        return commandlineargs.bridgeip
+                sys.exit("ERROR: Bridge {} was not found".format(commandlineargs.bridgeip))
+            else:
+                bridge = int(input())
+                return listener.bridgelist[bridge-1]
     
     # if multiple bridges detected via network discovery
     if len(bridgelist)>1:
