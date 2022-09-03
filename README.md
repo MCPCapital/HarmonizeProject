@@ -144,12 +144,13 @@ sudo ./setup.sh
 
 **Command line arguments:**
 
-* `-v `     Display verbose output
-* `-g # `   Use specific Entertainment area group number (#)
-* `-b <id>` Use specified bridge ID
-* `-i <ip>` Use specified bridge IP address
-* `-s `     Enable latency optimization for single light source centered behind display
-* `-w #`    Sets the video device wait time to the specified value, in seconds. Defaults to 0.75.
+* `-v `             Display verbose output
+* `-g # `           Use specific Entertainment area group number (#)
+* `-b <id>`         Use specified bridge ID
+* `-i <ip>`         Use specified bridge IP address
+* `-s `             Enable latency optimization for single light source centered behind display
+* `-w #`            Sets the video device wait time to the specified value, in seconds. Defaults to 0.75.
+* `-f <file/url>`   Use the specified file or URL video stream instead of a video device.
 
 **Configurable values within the script:** (Advanced users only)
 

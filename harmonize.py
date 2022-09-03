@@ -59,6 +59,7 @@ parser.add_argument("-b","--bridgeid", dest="bridgeid")
 parser.add_argument("-i","--bridgeip", dest="bridgeip")
 parser.add_argument("-s","--single_light", dest="single_light", action="store_true")
 parser.add_argument("-w","--video_wait_time", dest="video_wait_time", type=float, default=.75)
+parser.add_argument("-f","--stream_filename", dest="stream_filename")
 commandlineargs = parser.parse_args()
 
 is_single_light = False
@@ -339,18 +340,26 @@ def averageimage():
 ############ Video Capture Setup #####################
 ######################################################
 
-######### Now that weve defined our RGB values as bytes, we define how we pull values from the video analyzer output
-def cv2input_to_buffer(): ######### Section opens the device, sets buffer, pulls W/H
-    global w,h,rgbframe, channels
+######### Initialize the video device for capture using OpenCV
+def init_video_capture():
     try:
-        #cap = cv2.VideoCapture(0,cv2.CAP_FFMPEG) #variable cap is our raw video input
-        cap = cv2.VideoCapture(0,cv2.CAP_GSTREAMER) #variable cap is our raw video input
+        if commandlineargs.stream_filename is None:
+            #cap = cv2.VideoCapture(0,cv2.CAP_FFMPEG) #variable cap is our raw video input
+            cap = cv2.VideoCapture(0,cv2.CAP_GSTREAMER) #variable cap is our raw video input
+        else:
+            cap = cv2.VideoCapture(commandlineargs.stream_filename) #capture from given file/url
     except:
         sys.exit("ERROR: Issue enabling video capture")
     if cap.isOpened(): # Try to get the first frame
         verbose('INFO: Capture device opened using OpenCV.')
     else: #Makes sure we can access the device
         sys.exit('ERROR: Unable to open capture device.') #quit
+    return cap
+
+######### Now that weve defined our RGB values as bytes, we define how we pull values from the video analyzer output
+def cv2input_to_buffer(): ######### Section opens the device, sets buffer, pulls W/H
+    global w,h,rgbframe, channels
+    cap = init_video_capture()
     w  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))  # gets video width
     h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)) # gets video height
     verbose("INFO: Video frame size (W by H): {} by {}".format(w, h)) #prints video frame size
@@ -406,20 +415,15 @@ try:
         print(colored('Starting computer vision engine...','cyan'))
         verbose("OpenCV version:",cv2.__version__)
         try:
-            subprocess.check_output("ls -ltrh /dev/video0",shell=True)
+            if commandlineargs.stream_filename is None:
+                subprocess.check_output("ls -ltrh /dev/video0",shell=True)
+                print("--- INFO: Detected video capture card on /dev/video0 ---")
         except subprocess.CalledProcessError:                                                                                                  
             print("--- ERROR: Video capture card not detected on /dev/video0 ---")
         else:
-            print("--- INFO: Detected video capture card on /dev/video0 ---")
-
             # Check to see if video stream is actually being captured properly before continuing.
-            try:
-                #cap = cv2.VideoCapture(0,cv2.CAP_FFMPEG)
-                cap = cv2.VideoCapture(0,cv2.CAP_GSTREAMER) #variable cap is our raw video input
-            except:
-                sys.exit("ERROR: Issue enabling video capture")
-            if not cap.isOpened(): # Try to get the first frame
-                sys.exit('ERROR: Unable to open capture device.') #quit
+            cap = init_video_capture()
+
             w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))  # gets video width
             try: w
             except NameError: sys.exit("Error capturing stream. Exiting application.")
