@@ -34,16 +34,12 @@ Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Sign
 * Raspberry Pi 4B/3B/Zero or Linux box running at 1.5GHz+ with at least 4 CPU cores (tested on Ubuntu 22.04 64-bit LTS). The RPi 4B will exhibit optimal performance at 1080p resolution. Good performance can be achieved on the RPi 3B and Zero with minimal tweaking to lower frame rates (~10 FPS for the Zero) and video resolutions. 
 * HDMI video capture card or Webcam input device (ex. https://github.com/silvanmelchior/RPi_Cam_Web_Interface)
 
-**Example A Hardware configuration:**
-* RPi RAM: 256MB Free Minimum (512MB recommended)
-* RPi CPU: 1.5GHz+, 4 Cores strongly recommended due to running three simultaneous threads.
-* HDMI Splitter (Must be able to output 4k & 1080/720p simultaneously) [Here is a good one for $25](https://www.amazon.com/gp/product/B07YTWV8PR/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1), though it breaks HDR when downscaling output 2. The goal here is one output of 4K and another output of 1080/720p.
-* USB3.0 HDMI Capture Card (Capable of capturing 720/1080p; delay should be 50ms or under.) [I got this when it was $45.](https://www.amazon.com/gp/product/B07Z7RNDBZ/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1) A similar one should be fine. These are untested: [Panoraxy](https://www.amazon.com/Panoraxy-Capture-1080PFHD-Broadcast-Camcorder/dp/B088PYDJ22/ref=sr_1_21?dchild=1&keywords=hdmi+to+usb+3.0+capture&qid=1596386201&refinements=p_36%3A1253504011%2Cp_85%3A2470955011&rnid=2470954011&rps=1&s=electronics&sr=1-21) | [Aliexpress (This shape/style tends to perform well.)](https://www.aliexpress.com/item/4000834496145.html?spm=a2g0o.productlist.0.0.27a14df5Wc5Qoc&algo_pvid=e745d484-c811-4d2e-aebd-1403e862f148&algo_expid=e745d484-c811-4d2e-aebd-1403e862f148-15&btsid=0ab50f4415963867142714634e7e8e&ws_ab_test=searchweb0_0,searchweb201602_,searchweb201603_)
-
-**Example B Hardware configuration (for A/V receivers with 2 or more HDMI outputs):**
-* Raspberry Pi 4B kit running with recommended power supply. This hardware option was tested on the 8GB model running Ubuntu 64-bit OS (see software setup option B below).
-* HDMI Splitter (tested on U9 ViewHD Latest 4K 1x2 HDMI Splitter 1 in 2 Out, Model U9-Pluto v1.4)
-* USB3.0 HDMI Capture Card (tested on Elgato Cam Link 4k)
+**Example Hardware configuration (tested successfully unless otherwise noted below):**
+* RPi RAM: minimum of 256MB free (512MB free RAM recommended)
+* RPi CPU: 1.5GHz+, 4 Cores strongly recommended due to running three concurrent threads
+* Rpi power input: use recommended power supply and wattage requirements
+* HDMI Splitter capable of outputting 4k and 1080/720p simultaneously, such as the [AVSTAR 4K HDMI 2.0 Splitter 1X2](https://www.amazon.com/dp/B08D9BCX1R?psc=1&ref=ppx_yo2ov_dt_b_product_details). A/V receivers with 2 or more HDMI outputs may also be considered.
+* USB3.0 HDMI Capture Card (Capable of capturing 720/1080p; delay should be 50ms or under.) Tested successfully on the [WIIStar](https://www.amazon.com/gp/product/B07Z7RNDBZ/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1) Also tested successfully on the Elgato Cam Link 4k. The following are untested: [Panoraxy](https://www.amazon.com/Panoraxy-Capture-1080PFHD-Broadcast-Camcorder/dp/B088PYDJ22/ref=sr_1_21?dchild=1&keywords=hdmi+to+usb+3.0+capture&qid=1596386201&refinements=p_36%3A1253504011%2Cp_85%3A2470955011&rnid=2470954011&rps=1&s=electronics&sr=1-21) | [Aliexpress (This shape/style tends to perform well.)](https://www.aliexpress.com/item/4000834496145.html?spm=a2g0o.productlist.0.0.27a14df5Wc5Qoc&algo_pvid=e745d484-c811-4d2e-aebd-1403e862f148&algo_expid=e745d484-c811-4d2e-aebd-1403e862f148-15&btsid=0ab50f4415963867142714634e7e8e&ws_ab_test=searchweb0_0,searchweb201602_,searchweb201603_)
 
 # Setup
 
@@ -130,8 +126,7 @@ sudo ./setup.sh
 **First-Time Run Instructions:**
 
 * If you have not set up a bridge before, the program will attempt to register you on the bridge. You will have 60 seconds to push the button on the bridge.
-* If multiple bridges are found, you will be given the option to select one. You will have to do this every time if you have multiple bridges (for now).
-* If multiple entertainment areas are found, you will be given the option to select one. You can also enter this as a command line argument.
+* If multiple bridges and/or entertainment areas are found, you will be given the option to select one or use the command line arguments.
 
 # Usage
 

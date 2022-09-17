@@ -6,11 +6,14 @@
 ########## MCP Capital, LLC  ###########
 ########################################
 # Github.com/MCPCapital/harmonizeproject
-# Script Last Updated - Release 2.0.0
+# Script Last Updated - Release 2.2.1
 ########################################
 ### -v to enable verbose messages     ##
 ### -g # to pre-select a group number ##
 ### -b # to pre-select a bridge by id ##
+### -i # to pre-select bridge IP      ##
+### -w # to pre-select video wait time #
+### -f # to pre-select stream filename #
 ### -s # single light source optimized #
 ########################################
 
@@ -58,7 +61,7 @@ parser.add_argument("-g","--groupid", dest="groupid")
 parser.add_argument("-b","--bridgeid", dest="bridgeid")
 parser.add_argument("-i","--bridgeip", dest="bridgeip")
 parser.add_argument("-s","--single_light", dest="single_light", action="store_true")
-parser.add_argument("-w","--video_wait_time", dest="video_wait_time", type=float, default=.75)
+parser.add_argument("-w","--video_wait_time", dest="video_wait_time", type=float, default=5.0)
 parser.add_argument("-f","--stream_filename", dest="stream_filename")
 commandlineargs = parser.parse_args()
 
@@ -244,13 +247,15 @@ for value in json_data_v2['data']:
 r_v2 = requests.get("https://{}/clip/v2/resource/entertainment_configuration/{}".format(hueip,entertainment_id), verify=False, headers={"hue-application-key":clientdata['username']}) # via APIv2
 lights_data = json.loads(r_v2.text)
 lights_dict = dict()
-if len(lights_dict) > 20:
-   sys.exit("ERROR: {} light(s) found. The maximum allowable is up to 20 per Entertainment area. Exiting application.".format(len(lights_dict)))
 
 for index, value in enumerate(lights_data['data'][0]['channels']):
     #print(str(index) + " and " + str(value['position']))
     lights_dict.update({str(index): [value['position']['x'],value['position']['y'], value['position']['z']]})
 verbose("INFO: {} light(s) found in selected Entertainment area. Locations [x,y,z] are as follows: \n".format(len(lights_dict)), lights_dict)
+
+# Exit streaming application if number of lights is greater than 20
+if len(lights_dict) > 20:
+   sys.exit("ERROR: {} light(s) found. The maximum allowable is up to 20 per Entertainment area. Exiting application.".format(len(lights_dict)))
 
 # Retrieve PSK identify for APIv2 
 r_v2 = requests.get("https://{}/auth/v1".format(hueip), verify=False, headers={"hue-application-key":clientdata['username']}) # via APIv2
@@ -291,14 +296,12 @@ def stdin_to_buffer():
 ### Scaling light locations and averaging colors #####
 ######################################################
 
-def averageimage():
 ########## Scales up locations to identify the nearest pixel based on lights' locations #######
-    time.sleep(1.0) #wait for video size to be defined
+def averageimage():
     for x, coords in lights_dict.items():
         coords[0] = ((coords[0])+1) * w//2 #Translates x value and resizes to video aspect ratio
         coords[2] = (-1*(coords[2])+1) * h//2 #Flips y, translates, and resize to vid aspect ratio
-        
-    #for x, y in light_locations.items(): #Defines locations by light
+
     scaled_locations = list(lights_dict.items()) #Makes it a list of locations by light
     verbose("INFO: Lights and locations (in order) scaled using video resolution input are as follows: ", scaled_locations)
   
@@ -356,6 +359,10 @@ def init_video_capture():
         sys.exit('ERROR: Unable to open capture device.') #quit
     return cap
 
+######################################################
+############ Frame Grabber ###########################
+######################################################
+
 ######### Now that weve defined our RGB values as bytes, we define how we pull values from the video analyzer output
 def cv2input_to_buffer(): ######### Section opens the device, sets buffer, pulls W/H
     global w,h,rgbframe, channels
@@ -409,6 +416,8 @@ def buffer_to_light(proc): #Potentially thread this into 2 processes?
 ######################################################
 
 ######### Section executes video input and establishes the connection stream to bridge ##########
+#w,h,rgbframe, channels
+
 try:
     try:
         threads = list()
@@ -432,7 +441,8 @@ try:
             t = threading.Thread(target=cv2input_to_buffer)
             t.start()
             threads.append(t)
-            time.sleep(commandlineargs.video_wait_time)
+            print("Initializing video frame grabber...")
+            time.sleep(commandlineargs.video_wait_time) # wait sufficiently until rgbframe is defined
             if (commandlineargs.single_light is True) and (len(lights_dict)==1):
                 is_single_light = True
                 print("Enabled optimization for single light source") # averager thread is not utilized
@@ -442,7 +452,7 @@ try:
                 t = threading.Thread(target=averageimage)
                 t.start()
                 threads.append(t)
-            time.sleep(.25) #Initialize and find bridge IP before creating connection
+            time.sleep(0.50) # wait sufficiently until rgb_bytes is defined from above thread
             verbose("Opening an SSL packet stream to lights on network...")
             cmd = ["openssl","s_client","-dtls1_2","-cipher","PSK-AES128-GCM-SHA256","-psk_identity",hue_app_id,"-psk",clientdata['clientkey'], "-connect", hueip+":2100"]
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
@@ -460,7 +470,7 @@ try:
 
 finally: #Turn off streaming to allow normal function immedietly
     zeroconf.close()
-    print("Disabling streaming on Entertainment area")
-    r_v2 = requests.put("https://{}/clip/v2/resource/entertainment_configuration/{}".format(hueip,entertainment_id), json={"action":"stop"}, verify=False, headers={"hue-application-key":clientdata['username']})
+    print("Disabling streaming on Entertainment area...")
+    r = requests.put("https://{}/clip/v2/resource/entertainment_configuration/{}".format(hueip,entertainment_id), json={"action":"stop"}, verify=False, headers={"hue-application-key":clientdata['username']})
     jsondata = r.json()
     verbose(jsondata)
