@@ -392,7 +392,7 @@ def cv2input_to_buffer(): ######### Section opens the device, sets buffer, pulls
 
 ######### This is where we define our message format and insert our light#s, RGB values, and X,Y,Brightness ##########
 def buffer_to_light(proc): #Potentially thread this into 2 processes?
-    time.sleep(2.0) #Hold on so DTLS connection can be made & message format can get defined
+    time.sleep(1.5) #Hold on so DTLS connection can be made & message format can get defined
     while not stopped:
         bufferlock.acquire()
         
