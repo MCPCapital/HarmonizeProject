@@ -63,6 +63,8 @@ parser.add_argument("-i","--bridgeip", dest="bridgeip")
 parser.add_argument("-s","--single_light", dest="single_light", action="store_true")
 parser.add_argument("-w","--video_wait_time", dest="video_wait_time", type=float, default=5.0)
 parser.add_argument("-f","--stream_filename", dest="stream_filename")
+parser.add_argument("-l","--light_brightness", dest="light_brightness", type=int, default=30)
+
 commandlineargs = parser.parse_args()
 
 is_single_light = False
@@ -382,9 +384,23 @@ def cv2input_to_buffer(): ######### Section opens the device, sets buffer, pulls
             if is_single_light:
                 channels = cv2.mean(bgrframe)
             else:
+                bgrframe = adjust_brightness(bgrframe,commandlineargs.light_brightness)
                 rgbframe = cv2.cvtColor(bgrframe, cv2.COLOR_BGR2RGB) #corrects BGR to RGB
                 #verbose('BGrframe is :',bgrframe)
             if not ret: break
+
+def adjust_brightness(raw, value):
+    hsv = cv2.cvtColor(raw, cv2.COLOR_BGR2HSV)
+    h, s, v = cv2.split(hsv)
+
+    lim = 255 - value
+    v[v > lim] = 255
+    v[v <= lim] += value
+
+    final_hsv = cv2.merge((h, s, v))
+    raw = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
+    return raw
+
 
 ######################################################
 ############## Sending the messages ##################
