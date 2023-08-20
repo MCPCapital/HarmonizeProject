@@ -1,6 +1,6 @@
-Harmonize Project *for Philips Hue* [![ForTheBadge built-with-love](http://ForTheBadge.com/images/badges/built-with-love.svg)](https://matthewpilsbury.com)
+Harmonize Project *for Philips Hue*
 ============================
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)<!--[![Trust](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fastronomer.ullaakut.eu%2Fshields%3Fowner%3DMCPCapital%26name%3DHarmonizeProject)](#)--> [![Open Source Love svg2](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://matthewpilsbury.com)
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square) [![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.png?v=103)](https://github.com/ellerbrock/open-source-badges/)
 
 Harmonize Project connects Philips Hue lights and lightstrips to your TV screen content, creating an amazing ambient lighting effect! This application utilizes a low-latency video and color analysis built with Python 3. 
 
@@ -11,11 +11,14 @@ Check out our Reddit thread [here](https://www.reddit.com/r/Hue/comments/i1ngqt/
 Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Signify or Philips Hue. Hue and Philips Hue are trademarks of Signify.
 
 # New Features
+* v2.3: Added support to adjust maximum brightness
 * v2.2: Support for webcam stream input via file/URL
 * v2.1: Support for multiple Hue bridges
 * v2.0: Support for gradient lightstrips is now available!
 * v1.3: Added multicast DNS discovery for detecting bridge
 * v1.2: Latency now optimized for a single light source centered behind display (use the -s argument at the command prompt to enable)
+
+**Thank you** to all those who have contributed to this project. Please keep your pull requests coming!
 
 # Features
 * Light color and intensity follows relative location to the display perimeter
@@ -148,6 +151,7 @@ sudo ./setup.sh
 * `-s `             Enable latency optimization for single light source centered behind display
 * `-w #`            Sets the video device wait time to the specified value, in seconds. Defaults to 0.75.
 * `-f <file/url>`   Use the specified file or URL video stream instead of a video device.
+* `-l [0-255]`      Decrease brightness from 0 to 255 (0 is maximum brightness, default is 30).
 
 **Configurable values within the script:** (Advanced users only)
 
@@ -170,4 +174,4 @@ Pull requests are encouraged and accepted! Whether you have some code changes or
 
 Development credits to Matthew C. Pilsbury (MCP Capital LLC), Ares N. Vlahos, and Brad Dworak.
 
-[![licensebuttons by-nc](https://licensebuttons.net/l/by-nc/3.0/88x31.png)](https://creativecommons.org/licenses/by-nc/4.0/legalcode)  [![ForTheBadge makes-people-smile](http://ForTheBadge.com/images/badges/makes-people-smile.svg)](https://matthewpilsbury.com) [![forthebadge](https://forthebadge.com/images/badges/pretty-risque.svg)](https://matthewpilsbury.com) [![forthebadge](https://forthebadge.com/images/badges/uses-badges.svg)](https://forthebadge.com) [![forthebadge](https://forthebadge.com/images/badges/built-with-resentment.svg)](https://www.wipo.int/amc/en/domains/search/text.jsp?case=D2020-0278)
+[![licensebuttons by-nc](https://licensebuttons.net/l/by-nc/3.0/88x31.png)](https://creativecommons.org/licenses/by-nc/4.0/legalcode)
