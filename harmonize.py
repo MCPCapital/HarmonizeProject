@@ -6,7 +6,7 @@
 ########## MCP Capital, LLC  ###########
 ########################################
 # Github.com/MCPCapital/harmonizeproject
-# Script Last Updated - Release 2.2.1
+# Script Last Updated - Release 2.3
 ########################################
 ### -v to enable verbose messages     ##
 ### -g # to pre-select a group number ##
@@ -15,6 +15,7 @@
 ### -w # to pre-select video wait time #
 ### -f # to pre-select stream filename #
 ### -s # single light source optimized #
+### -l # to adjust maximum brightness  #
 ########################################
 
 import sys
