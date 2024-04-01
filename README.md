@@ -108,7 +108,6 @@ sudo ./setup.sh
 * Connect Video Device (PS4, FireStick, etc.) to the splitter input. 
 * Connect an HDMI cable from the 4k output to the TV; and from Output 2 (downscaled) to the video capture card connected to your device.
 * Ensure your splitter's switches are set to downscale Output 2 to 1080 or 720p!
-![Connection Diagram](http://harmonizeproject.matthewpilsbury.com/diagram.png)
 
 **Hardware Setup Example B (for A/V receivers with 2 or more HDMI outputs):**
 
@@ -124,7 +123,6 @@ sudo ./setup.sh
 * Hue App -> Settings -> Entertainment Areas
 * Harmonize will use the **height** and the **horizontal position** of lights in relation to the TV. **The depth/vertical position are currently ignored.**
 * In the example below, the light on the left is to the left of the TV at the bottom of it. The light on the right is on the right side of the TV at the top of it.
-![Example Entertainment Area](http://harmonizeproject.matthewpilsbury.com/examplearea1.jpg)
 
 **First-Time Run Instructions:**
 
