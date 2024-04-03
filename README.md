@@ -108,6 +108,7 @@ sudo ./setup.sh
 * Connect Video Device (PS4, FireStick, etc.) to the splitter input. 
 * Connect an HDMI cable from the 4k output to the TV; and from Output 2 (downscaled) to the video capture card connected to your device.
 * Ensure your splitter's switches are set to downscale Output 2 to 1080 or 720p!
+* ![Connections diagram](https://github.com/bradleydworak/HarmonizeProject/blob/master/connections.png?raw=true)
 
 **Hardware Setup Example B (for A/V receivers with 2 or more HDMI outputs):**
 
