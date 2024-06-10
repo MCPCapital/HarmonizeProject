@@ -50,9 +50,13 @@ Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Sign
 
 **Ubuntu Desktop 22.04 LTS 64-bit with Python v3.10.4 (most recent version tested)**
 
-Install OS from Raspberry Pi Imager software onto SD card (see https://www.raspberrypi.org/software/). Install SD card and boot.
+* Install the Raspberry Pi Imager software (see https://www.raspberrypi.org/software/) on a separate computer with an available SD card slot/adapter. Insert an SD card with at least 32GB capacity with decent read/write speeds.
 
-Install all dependencies via the following commands. **Be sure to watch for errors!** 
+* Launch the imager and select the Raspberry Pi device type, Ubuntu Desktop 64-bit OS, and the storage location for the SD card. Click Next.
+
+* After the OS has been installed, insert the SD card into the RPi and boot.
+
+* Install all dependencies via the following commands. **Be sure to watch for errors!** 
 
 * Install pip:
 ```
