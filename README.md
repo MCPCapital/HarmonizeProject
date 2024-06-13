@@ -34,7 +34,7 @@ Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Sign
 **Minimum Hardware:**
 
 * Hue bridge using firmware version 194808600 or greater
-* Raspberry Pi 4B/3B/Zero or Linux box running at 1.5GHz+ with at least 4 CPU cores (tested on Ubuntu 22.04 64-bit LTS). The RPi 4B will exhibit optimal performance at 1080p resolution. Good performance can be achieved on the RPi 3B and Zero with minimal tweaking to lower frame rates (~10 FPS for the Zero) and video resolutions. 
+* Raspberry Pi 5/4B/3B/Zero or Linux box running at 1.5GHz+ with at least 4 CPU cores (tested on Ubuntu 24.04 64-bit). The RPi 5 and 4B will exhibit optimal performance at 1080p resolution. Good performance can be achieved on the RPi 3B and Zero with minimal tweaking to lower frame rates (~10 FPS for the Zero) and video resolutions. 
 * HDMI video capture card or Webcam input device (ex. https://github.com/silvanmelchior/RPi_Cam_Web_Interface)
 
 **Example Hardware configuration (tested successfully unless otherwise noted below):**
@@ -92,21 +92,22 @@ source harmonize_env/bin/activate
 ```
 pip install numpy zeroconf requests termcolor
 ```
-* Compile and install OpenCV 4.10 from source - [Follow this guide...](https://docs.opencv.org/4.10.0/d7/d9f/tutorial_linux_install.html) Compiling may take a couple of hours. Note that if you upgrade Ubuntu to a new release you may need to completely uninstall, recompile, and reinstall OpenCV.
+* Compile and install OpenCV 4.10.0 from source - [Follow this guide...](https://docs.opencv.org/4.10.0/d7/d9f/tutorial_linux_install.html) Compiling may take a couple of hours. Note that if you upgrade Ubuntu to a new release you may need to completely uninstall, recompile, and reinstall OpenCV.
 ```
-sudo apt-get install cmake
-sudo apt-get install python3-dev python3-numpy libpython3-all-dev
-sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev
-sudo apt-get install libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev
-sudo apt-get install libgtk-3-dev
-sudo apt-get install git
-git clone https://github.com/opencv/opencv.git
-mkdir opencv/build
-cd opencv/build
-cmake -D CMAKE_INSTALL_PREFIX=/usr/local -D BUILD_opencv_java=OFF -D BUILD_opencv_python2=OFF -D BUILD_opencv_python3=ON -D PYTHON_DEFAULT_EXECUTABLE=$(which python3) -D INSTALL_C_EXAMPLES=OFF -D INSTALL_PYTHON_EXAMPLES=ON -D BUILD_EXAMPLES=ON -D WITH_CUDA=OFF -D BUILD_TESTS=OFF -D BUILD_PERF_TESTS=OFF ..
+sudo apt install cmake
+sudo apt install python3-dev python3-numpy libpython3-all-dev
+sudo apt install libavcodec-dev libavformat-dev libswscale-dev
+sudo apt install libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev # to be used for GStreamer support
+sudo apt install libgtk-3-dev
+sudo apt install wget git
+wget -O opencv.zip https://github.com/opencv/opencv/archive/4.10.0.zip
+unzip opencv.zip
+mv opencv-4.10.0 opencv
+mkdir -p build && cd build
+cmake -D CMAKE_INSTALL_PREFIX=/usr/local -D BUILD_opencv_java=OFF -D BUILD_opencv_python2=OFF -D BUILD_opencv_python3=ON -D PYTHON_DEFAULT_EXECUTABLE=$(which python3) -D INSTALL_C_EXAMPLES=OFF -D INSTALL_PYTHON_EXAMPLES=OFF -D BUILD_EXAMPLES=OFF -D WITH_CUDA=OFF -D WITH_GSTREAMER=ON -D BUILD_TESTS=OFF -D BUILD_PERF_TESTS=OFF ../opencv
 make -j4
 sudo make install
-cd ../..
+cd ..
 git clone https://github.com/MCPCapital/HarmonizeProject.git
 ```
 
