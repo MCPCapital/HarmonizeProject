@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 ########################################
 ########## Harmonize Project ###########
@@ -6,7 +6,7 @@
 ########## MCP Capital, LLC  ###########
 ########################################
 # Github.com/MCPCapital/harmonizeproject
-# Script Last Updated - Release 2.3
+# Script Last Updated - Release 2.4
 ########################################
 ### -v to enable verbose messages     ##
 ### -g # to pre-select a group number ##
@@ -32,7 +32,6 @@ import cv2
 import re
 
 from pathlib import Path
-from http_parser.parser import HttpParser
 from zeroconf import ServiceBrowser, ServiceListener, Zeroconf
 from termcolor import colored
 
@@ -226,7 +225,7 @@ if len(json_data_v2['data'])==0: #No entertainment areas or null = exit
         sys.exit("No Entertainment areas found. Please ensure at least one has been created in the Hue App.")
 
 if len(json_data_v2['data'])==1:
-    groupid = re.findall("\d+", json_data_v2['data'][0]['id_v1'])[0]
+    groupid = re.findall(r'\d+', json_data_v2['data'][0]['id_v1'])[0]
     entertainment_id = json_data_v2['data'][0]['id']
     print("groupid = ",groupid)
 
@@ -234,7 +233,7 @@ if len(json_data_v2['data'])>1:
 
     print("Multiple Entertainment areas found. Type in the number corresponding to the area you wish to use and hit Enter. (You can specify which with the optional argument --groupid ).")
     for value in json_data_v2['data']:
-        print("[ " + str(re.findall("\d+",value['id_v1'])[0]) + " ]: " + str(value['name']))
+        print("[ " + str(re.findall(r'\d+',value['id_v1'])[0]) + " ]: " + str(value['name']))
     if groupid is None:
         groupid = input()
 
@@ -242,7 +241,7 @@ print("Using Entertainment area with group_id: {}".format(groupid))
 
 # find entertainment_id from legacy group_id
 for value in json_data_v2['data']:
-    if groupid == re.findall("\d+",value['id_v1'])[0]:
+    if groupid == re.findall(r'\d+',value['id_v1'])[0]:
         entertainment_id = str(value['id'])
         verbose("Selected Entertainment UDID:",entertainment_id)
 

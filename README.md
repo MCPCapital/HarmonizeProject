@@ -11,6 +11,7 @@ Check out our Reddit thread [here](https://www.reddit.com/r/Hue/comments/i1ngqt/
 Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Signify or Philips Hue. Hue and Philips Hue are trademarks of Signify.
 
 # New Features
+* v2.4: Added support for Python 3.12 and Ubuntu 24.04 installation
 * v2.3: Added support to adjust maximum brightness
 * v2.2: Support for webcam stream input via file/URL
 * v2.1: Support for multiple Hue bridges
@@ -34,7 +35,7 @@ Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Sign
 **Minimum Hardware:**
 
 * Hue bridge using firmware version 194808600 or greater
-* Raspberry Pi 4B/3B/Zero or Linux box running at 1.5GHz+ with at least 4 CPU cores (tested on Ubuntu 22.04 64-bit LTS). The RPi 4B will exhibit optimal performance at 1080p resolution. Good performance can be achieved on the RPi 3B and Zero with minimal tweaking to lower frame rates (~10 FPS for the Zero) and video resolutions. 
+* Raspberry Pi 5/4B/3B/Zero or Linux box running at 1.5GHz+ with at least 4 CPU cores (tested on Ubuntu 24.04 64-bit). The RPi 5 and 4B will exhibit optimal performance at 1080p resolution. Good performance can be achieved on the RPi 3B and Zero with minimal tweaking to lower frame rates (~10 FPS for the Zero) and video resolutions. 
 * HDMI video capture card or Webcam input device (ex. https://github.com/silvanmelchior/RPi_Cam_Web_Interface)
 
 **Example Hardware configuration (tested successfully unless otherwise noted below):**
@@ -48,19 +49,19 @@ Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Sign
 
 **Software Setup:**
 
-**Ubuntu Desktop 22.04 LTS 64-bit with Python v3.10.4 (most recent version tested)**
+**Ubuntu Desktop 24.04 LTS 64-bit with Python v3.12 (most recent version tested)**
 
-Install OS from Raspberry Pi Imager software onto SD card (see https://www.raspberrypi.org/software/). Install SD card and boot.
+* Install the Raspberry Pi Imager software (see https://www.raspberrypi.org/software/) on a separate computer with an available SD card slot/adapter. Insert an SD card with at least 32GB capacity with decent read/write speeds.
 
-Install all dependencies via the following commands. **Be sure to watch for errors!** 
+* Launch the imager and select the Raspberry Pi device type, Ubuntu Desktop 64-bit OS, and the storage location for the SD card. Click Next.
 
-* Install pip:
+* After the OS has been installed, insert the SD card into the RPi and boot.
+
+* Install all dependencies via the following commands. **Be sure to watch for errors!** 
+
+* Install pip (will also install gcc and g++ C-compilers as dependencies):
 ```
 sudo apt-get install python3-pip
-```
-* Install HTTP Parser, NumPy, and zerconf Python dependencies via pip:
-```
-pip3 install http-parser numpy zeroconf termcolor
 ```
 * Install Snap:
 ```
@@ -74,22 +75,41 @@ sudo snap install avahi
 ```
 sudo apt install screen
 ```
-* Compile and install OpenCV 4.6+ from source - [Follow this guide...] (https://docs.opencv.org/master/d2/de6/tutorial_py_setup_in_ubuntu.html) Compiling may take a couple of hours. Note that if you upgrade Ubuntu to a new release you may need to completely uninstall, recompile, and reinstall OpenCV.
+* Install pipx [Github reference](https://github.com/pypa/pipx):
 ```
-sudo apt-get install cmake
-sudo apt-get install gcc g++
-sudo apt-get install python3-dev python3-numpy libpython3-all-dev
-sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev
-sudo apt-get install libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev
-sudo apt-get install libgtk-3-dev
-sudo apt-get install git
-git clone https://github.com/opencv/opencv.git
-mkdir opencv/build
-cd opencv/build
-cmake -D CMAKE_INSTALL_PREFIX=/usr/local -D BUILD_opencv_java=OFF -D BUILD_opencv_python2=OFF -D BUILD_opencv_python3=ON -D PYTHON_DEFAULT_EXECUTABLE=$(which python3) -D INSTALL_C_EXAMPLES=OFF -D INSTALL_PYTHON_EXAMPLES=ON -D BUILD_EXAMPLES=ON -D WITH_CUDA=OFF -D BUILD_TESTS=OFF -D BUILD_PERF_TESTS=OFF ..
+sudo apt install pipx
+pipx ensurepath
+```
+* Install virtualenv:
+```
+pipx install virtualenv
+```
+* Create virtual environment and activate:
+```
+virtualenv --python=python3.12 harmonize_env
+source harmonize_env/bin/activate
+```
+* Install NumPy, zerconf, requests, and termcolor Python dependencies via pip:
+```
+pip install numpy zeroconf requests termcolor
+```
+* Compile and install OpenCV 4.10.0 from source - [Follow this guide...](https://docs.opencv.org/4.10.0/d7/d9f/tutorial_linux_install.html) Compiling may take a couple of hours depending on the capabilities of your system. Note that if you upgrade Ubuntu to a new release you may need to completely uninstall, recompile, and reinstall OpenCV.
+```
+sudo apt install cmake
+sudo apt install python3-dev python3-numpy libpython3-all-dev
+sudo apt install libavcodec-dev libavformat-dev libswscale-dev
+sudo apt install libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev # to be used for GStreamer support
+sudo apt install libgtk-3-dev
+sudo apt install wget git
+wget -O opencv.zip https://github.com/opencv/opencv/archive/4.10.0.zip
+unzip opencv.zip
+mv opencv-4.10.0 opencv
+mkdir -p build && cd build
+cmake -D CMAKE_INSTALL_PREFIX=/usr/local -D BUILD_opencv_java=OFF -D BUILD_opencv_python2=OFF -D BUILD_opencv_python3=ON -D PYTHON_DEFAULT_EXECUTABLE=$(which python3) -D INSTALL_C_EXAMPLES=OFF -D INSTALL_PYTHON_EXAMPLES=OFF -D BUILD_EXAMPLES=OFF -D WITH_CUDA=OFF -D WITH_GSTREAMER=ON -D BUILD_TESTS=OFF -D BUILD_PERF_TESTS=OFF ../opencv
 make -j4
 sudo make install
-cd ../..
+cd ..
+sudo ln -s /usr/local/lib/python3.12/site-packages/cv2 /home/bdworak/harmonize_env/lib/python3.12/site-packages/cv2
 git clone https://github.com/MCPCapital/HarmonizeProject.git
 ```
 
