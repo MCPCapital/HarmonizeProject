@@ -11,6 +11,7 @@ Check out our Reddit thread [here](https://www.reddit.com/r/Hue/comments/i1ngqt/
 Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Signify or Philips Hue. Hue and Philips Hue are trademarks of Signify.
 
 # New Features
+* v2.4: Added support for Python 3.12 and Ubuntu 24.04 installation
 * v2.3: Added support to adjust maximum brightness
 * v2.2: Support for webcam stream input via file/URL
 * v2.1: Support for multiple Hue bridges
