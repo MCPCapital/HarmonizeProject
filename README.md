@@ -48,7 +48,7 @@ Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Sign
 
 **Software Setup:**
 
-**Ubuntu Desktop 22.04 LTS 64-bit with Python v3.10.4 (most recent version tested)**
+**Ubuntu Desktop 24.04 LTS 64-bit with Python v3.12 (most recent version tested)**
 
 * Install the Raspberry Pi Imager software (see https://www.raspberrypi.org/software/) on a separate computer with an available SD card slot/adapter. Insert an SD card with at least 32GB capacity with decent read/write speeds.
 
@@ -62,10 +62,6 @@ Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Sign
 ```
 sudo apt-get install python3-pip
 ```
-* Install HTTP Parser, NumPy, and zerconf Python dependencies via pip:
-```
-pip3 install http-parser numpy zeroconf termcolor
-```
 * Install Snap:
 ```
 sudo apt install snapd
@@ -78,7 +74,25 @@ sudo snap install avahi
 ```
 sudo apt install screen
 ```
-* Compile and install OpenCV 4.6+ from source - [Follow this guide...] (https://docs.opencv.org/master/d2/de6/tutorial_py_setup_in_ubuntu.html) Compiling may take a couple of hours. Note that if you upgrade Ubuntu to a new release you may need to completely uninstall, recompile, and reinstall OpenCV.
+* Install pipx [Github reference](https://github.com/pypa/pipx):
+```
+sudo apt install pipx
+pipx ensurepath
+```
+* Install virtualenv:
+```
+pipx install virtualenv
+```
+* Create virtual environment and activate:
+```
+virtualenv --python=python3.12 harmonize_env
+source harmonize_env/bin/activate
+```
+* Install NumPy, zerconf, and termcolor Python dependencies via pip:
+```
+pip install numpy zeroconf termcolor
+```
+* Compile and install OpenCV 4.10 from source - [Follow this guide...](https://docs.opencv.org/4.10.0/d7/d9f/tutorial_linux_install.html) Compiling may take a couple of hours. Note that if you upgrade Ubuntu to a new release you may need to completely uninstall, recompile, and reinstall OpenCV.
 ```
 sudo apt-get install cmake
 sudo apt-get install gcc g++
