@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 ########################################
 ########## Harmonize Project ###########
@@ -32,7 +32,6 @@ import cv2
 import re
 
 from pathlib import Path
-from http_parser.parser import HttpParser
 from zeroconf import ServiceBrowser, ServiceListener, Zeroconf
 from termcolor import colored
 
