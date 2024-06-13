@@ -58,7 +58,7 @@ Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Sign
 
 * Install all dependencies via the following commands. **Be sure to watch for errors!** 
 
-* Install pip:
+* Install pip (will also install gcc and g++ C-compilers as dependencies):
 ```
 sudo apt-get install python3-pip
 ```
@@ -88,14 +88,13 @@ pipx install virtualenv
 virtualenv --python=python3.12 harmonize_env
 source harmonize_env/bin/activate
 ```
-* Install NumPy, zerconf, and termcolor Python dependencies via pip:
+* Install NumPy, zerconf, requests, and termcolor Python dependencies via pip:
 ```
-pip install numpy zeroconf termcolor
+pip install numpy zeroconf requests termcolor
 ```
 * Compile and install OpenCV 4.10 from source - [Follow this guide...](https://docs.opencv.org/4.10.0/d7/d9f/tutorial_linux_install.html) Compiling may take a couple of hours. Note that if you upgrade Ubuntu to a new release you may need to completely uninstall, recompile, and reinstall OpenCV.
 ```
 sudo apt-get install cmake
-sudo apt-get install gcc g++
 sudo apt-get install python3-dev python3-numpy libpython3-all-dev
 sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev
 sudo apt-get install libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev
