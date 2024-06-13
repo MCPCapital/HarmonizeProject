@@ -108,6 +108,7 @@ cmake -D CMAKE_INSTALL_PREFIX=/usr/local -D BUILD_opencv_java=OFF -D BUILD_openc
 make -j4
 sudo make install
 cd ..
+sudo ln -s /usr/local/lib/python3.12/site-packages/cv2 /home/bdworak/harmonize_env/lib/python3.12/site-packages/cv2
 git clone https://github.com/MCPCapital/HarmonizeProject.git
 ```
 
