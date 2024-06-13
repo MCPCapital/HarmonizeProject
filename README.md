@@ -92,7 +92,7 @@ source harmonize_env/bin/activate
 ```
 pip install numpy zeroconf requests termcolor
 ```
-* Compile and install OpenCV 4.10.0 from source - [Follow this guide...](https://docs.opencv.org/4.10.0/d7/d9f/tutorial_linux_install.html) Compiling may take a couple of hours. Note that if you upgrade Ubuntu to a new release you may need to completely uninstall, recompile, and reinstall OpenCV.
+* Compile and install OpenCV 4.10.0 from source - [Follow this guide...](https://docs.opencv.org/4.10.0/d7/d9f/tutorial_linux_install.html) Compiling may take a couple of hours depending on the capabilities of your system. Note that if you upgrade Ubuntu to a new release you may need to completely uninstall, recompile, and reinstall OpenCV.
 ```
 sudo apt install cmake
 sudo apt install python3-dev python3-numpy libpython3-all-dev
