@@ -86,8 +86,8 @@ pipx install virtualenv
 ```
 * Create virtual environment and activate:
 ```
-virtualenv --python=python3.12 harmonize_env
-source harmonize_env/bin/activate
+virtualenv --python=python3.12 ~/harmonize_env
+source ~/harmonize_env/bin/activate
 ```
 * Install NumPy, zerconf, requests, and termcolor Python dependencies via pip:
 ```
@@ -156,6 +156,7 @@ sudo ./setup.sh
 
 * `screen`
 * `cd HarmonizeProject`
+* source ~/harmonize_env/bin/activate
 * `./harmonize.py`
 * Type Ctrl+A and Ctrl-D to continue running the script in the background.
 * To resume the terminal session use `screen -r`
