@@ -11,13 +11,14 @@ Check out our Reddit thread [here](https://www.reddit.com/r/Hue/comments/i1ngqt/
 Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Signify or Philips Hue. Hue and Philips Hue are trademarks of Signify.
 
 # New Features
-* v2.4: Added support for Python 3.12 and Ubuntu 24.04 installation
-* v2.3: Added support to adjust maximum brightness
-* v2.2: Support for webcam stream input via file/URL
-* v2.1: Support for multiple Hue bridges
-* v2.0: Support for gradient lightstrips is now available!
-* v1.3: Added multicast DNS discovery for detecting bridge
-* v1.2: Latency now optimized for a single light source centered behind display (use the -s argument at the command prompt to enable)
+* v2.4.1: Videocapture reset command added (useful when switching A/V inputs)
+* v2.4:   Added support for Python 3.12 and Ubuntu 24.04 installation
+* v2.3:   Added support to adjust maximum brightness
+* v2.2:   Support for webcam stream input via file/URL
+* v2.1:   Support for multiple Hue bridges
+* v2.0:   Support for gradient lightstrips is now available!
+* v1.3:   Added multicast DNS discovery for detecting bridge
+* v1.2:   Latency now optimized for a single light source centered behind display (use the -s argument at the command prompt to enable)
 
 **Thank you** to all those who have contributed to this project. Please keep your pull requests coming!
 
