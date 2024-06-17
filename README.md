@@ -156,8 +156,8 @@ sudo ./setup.sh
 
 * `screen`
 * `cd HarmonizeProject`
-* source ~/harmonize_env/bin/activate
-* `./harmonize.py`
+* `source ~/harmonize_env/bin/activate`
+* `./harmonize.py` (ex. for maximum brightness) `./harmonize.py -l 0`
 * Type Ctrl+A and Ctrl-D to continue running the script in the background.
 * To resume the terminal session use `screen -r`
 * Press *ENTER* to safely stop the program.
@@ -184,7 +184,6 @@ sudo ./setup.sh
 * "Import Error" - Ensure you have all the dependencies installed. Run through the manual dependency install instructions above.
 * No video input // lights are all dim gray - Run `python3 ./videotest.py` to see if your device (via OpenCV) can properly read the video input.
 * w, h, or rgbframe not defined - Increase the waiting time from the default 0.75 seconds by passing the `-w` argument *This is a known bug (race condition).
-* python3-opencv installation fails - Compile from source - [Follow this guide.](https://pimylifeup.com/raspberry-pi-opencv/)
 * Sanity check: The output of the command `ls -ltrh /dev/video*` should provide a list of results that includes /dev/video0 when the OS properly detects the video capture card.
 * Many questions are answered on our Reddit release thread [here.](https://www.reddit.com/r/Hue/comments/i1ngqt/release_harmonize_project_sync_hue_lights_with/) New issues should be raised on Github.
 
