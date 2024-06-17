@@ -6,7 +6,7 @@
 ########## MCP Capital, LLC  ###########
 ########################################
 # Github.com/MCPCapital/harmonizeproject
-# Script Last Updated - Release 2.4
+# Script Last Updated - Release 2.4.1
 ########################################
 ### -v to enable verbose messages     ##
 ### -g # to pre-select a group number ##
@@ -68,6 +68,7 @@ parser.add_argument("-l","--light_brightness", dest="light_brightness", type=int
 commandlineargs = parser.parse_args()
 
 is_single_light = False
+stopped = False
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
@@ -147,17 +148,6 @@ def findhue(): #Auto-find bridges on mDNS network
     
     return None
 
-print(colored('--- Starting Harmonize Project ---','green'))
-hueip = findhue() or None
-if hueip is None:
-    sys.exit("ERROR: Hue bridge not found. Please ensure proper network connectivity and power connection to the hue bridge.")
-verbose("INFO: Hue bridge located at:", hueip)
-
-baseurl = "http://{}/api".format(hueip)
-clientdata = []
-
-verbose("Checking whether Harmonizer application is already registered (Looking for client.json file).")
-
 def register():
     global clientdata
     print("INFO: Device not registered on bridge")
@@ -184,6 +174,19 @@ def register():
     else:
         print("ERROR: Button press not detected, exiting application.")
         exit()
+
+### Start of main program ###
+
+print(colored('--- Starting Harmonize Project ---','green'))
+hueip = findhue() or None
+if hueip is None:
+    sys.exit("ERROR: Hue bridge not found. Please ensure proper network connectivity and power connection to the hue bridge.")
+verbose("INFO: Hue bridge located at:", hueip)
+
+baseurl = "http://{}/api".format(hueip)
+clientdata = []
+
+verbose("Checking whether Harmonizer application is already registered (Looking for client.json file).")
 
 if Path("./client.json").is_file():
     f = open("client.json", "r")
@@ -269,26 +272,9 @@ verbose("Enabling streaming to your Entertainment area") #Allows us to send UPD 
 r_v2 = requests.put("https://{}/clip/v2/resource/entertainment_configuration/{}".format(hueip,entertainment_id), json={"action":"start"}, verify=False, headers={"hue-application-key":clientdata['username']}) # via APIv2
 jsondata = r_v2.json()
 verbose(jsondata)
-
-###### This is used to execute the command near the bottom of this document to create the DTLS handshake with the bridge on port 2100
-def execute(cmd):
-    popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
-    verbose("Executing send commands... Cross your fingers")
-    for stdout_line in iter(popen.stdout.readline, ""):
-        yield stdout_line
-    popen.stdout.close()
-    return_code = popen.wait()
-    if return_code:
-        raise subprocess.CalledProcessError(return_code, cmd)
         
 ######### Prepare the messages' vessel for the RGB values we will insert
 bufferlock = threading.Lock()
-stopped = False
-def stdin_to_buffer():
-    for line in fileinput.input():
-        print(line)
-        if stopped:
-            break
 
 ######################################################
 ################# Setup Complete #####################
@@ -367,7 +353,7 @@ def init_video_capture():
 
 ######### Now that weve defined our RGB values as bytes, we define how we pull values from the video analyzer output
 def cv2input_to_buffer(): ######### Section opens the device, sets buffer, pulls W/H
-    global w,h,rgbframe, channels
+    global w,h,rgbframe, channels, cap
     cap = init_video_capture()
     w  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))  # gets video width
     h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)) # gets video height
@@ -375,19 +361,24 @@ def cv2input_to_buffer(): ######### Section opens the device, sets buffer, pulls
 
 ########## This section loops & pulls re-colored frames and alwyas get the newest frame 
     cap.set(cv2.CAP_PROP_BUFFERSIZE,0) # No frame buffer to avoid lagging, always grab newest frame
-    ct = 0 ######ct code grabs every X frame as indicated below
+    #ct = 0 ######ct code grabs every X frame as indicated below
     while not stopped:
-        ct += 1
-        ret = cap.grab() #constantly grabs frames
-        if ct % 1 == 0: # Skip frames (1=don't skip,2=skip half,3=skip 2/3rds)
-            ret, bgrframe = cap.retrieve() #processes most recent frame
+        #ct += 1
+        #ret = cap.grab() #constantly grabs frames
+        #if ct % 1 == 0: # Skip frames (1=don't skip,2=skip half,3=skip 2/3rds)
+        #ret, bgrframe = cap.retrieve() #processes most recent frame
+        ret, bgrframe = cap.read() # processes most recent frame
+        if ret: # if frame is read properly
             if is_single_light:
                 channels = cv2.mean(bgrframe)
             else:
                 bgrframe = adjust_brightness(bgrframe,commandlineargs.light_brightness)
                 rgbframe = cv2.cvtColor(bgrframe, cv2.COLOR_BGR2RGB) #corrects BGR to RGB
                 #verbose('BGrframe is :',bgrframe)
-            if not ret: break
+        else:
+            print("WARNING: Unable to read frame from video stream")
+            time.sleep(1)
+        # if not ret: break
 
 def adjust_brightness(raw, value):
     hsv = cv2.cvtColor(raw, cv2.COLOR_BGR2HSV)
@@ -432,8 +423,7 @@ def buffer_to_light(proc): #Potentially thread this into 2 processes?
 ######################################################
 
 ######### Section executes video input and establishes the connection stream to bridge ##########
-#w,h,rgbframe, channels
-
+ 
 try:
     try:
         threads = list()
@@ -442,17 +432,17 @@ try:
         try:
             if commandlineargs.stream_filename is None:
                 subprocess.check_output("ls -ltrh /dev/video0",shell=True)
-                print("--- INFO: Detected video capture card on /dev/video0 ---")
+                print("INFO: Detected video capture card on /dev/video0")
         except subprocess.CalledProcessError:                                                                                                  
-            print("--- ERROR: Video capture card not detected on /dev/video0 ---")
+            print("ERROR: Video capture card not detected on /dev/video0")
         else:
             # Check to see if video stream is actually being captured properly before continuing.
-            cap = init_video_capture()
+            cap_test = init_video_capture()
 
-            w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))  # gets video width
+            w = int(cap_test.get(cv2.CAP_PROP_FRAME_WIDTH))  # gets video width
             try: w
             except NameError: sys.exit("Error capturing stream. Exiting application.")
-            cap.release()
+            cap_test.release()
 
             t = threading.Thread(target=cv2input_to_buffer)
             t.start()
@@ -475,11 +465,17 @@ try:
             t = threading.Thread(target=buffer_to_light, args=(proc,))
             t.start()
             threads.append(t)
-            print(colored('Press Return to stop streaming.','yellow'))
-            input() # Allow us to exit easily
-            stopped=True
-            for t in threads:
-                t.join()
+            while not stopped:
+                key_input = input("Please r to reset the video capture, q to stop streaming, followed by Enter: ")
+                print(key_input)
+                if key_input == 'r':
+                    print("Resetting video capture...")
+                    cap.open(0)
+                if key_input == 'q':
+                    stopped = True
+                    for t in threads:
+                        t.join()
+
     except Exception as e:
         print(e)
         stopped=True

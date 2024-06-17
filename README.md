@@ -11,13 +11,14 @@ Check out our Reddit thread [here](https://www.reddit.com/r/Hue/comments/i1ngqt/
 Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Signify or Philips Hue. Hue and Philips Hue are trademarks of Signify.
 
 # New Features
-* v2.4: Added support for Python 3.12 and Ubuntu 24.04 installation
-* v2.3: Added support to adjust maximum brightness
-* v2.2: Support for webcam stream input via file/URL
-* v2.1: Support for multiple Hue bridges
-* v2.0: Support for gradient lightstrips is now available!
-* v1.3: Added multicast DNS discovery for detecting bridge
-* v1.2: Latency now optimized for a single light source centered behind display (use the -s argument at the command prompt to enable)
+* v2.4.1: Videocapture reset command added (useful when switching A/V inputs)
+* v2.4:   Added support for Python 3.12 and Ubuntu 24.04 installation
+* v2.3:   Added support to adjust maximum brightness
+* v2.2:   Support for webcam stream input via file/URL
+* v2.1:   Support for multiple Hue bridges
+* v2.0:   Support for gradient lightstrips is now available!
+* v1.3:   Added multicast DNS discovery for detecting bridge
+* v1.2:   Latency now optimized for a single light source centered behind display (use the -s argument at the command prompt to enable)
 
 **Thank you** to all those who have contributed to this project. Please keep your pull requests coming!
 
@@ -86,8 +87,8 @@ pipx install virtualenv
 ```
 * Create virtual environment and activate:
 ```
-virtualenv --python=python3.12 harmonize_env
-source harmonize_env/bin/activate
+virtualenv --python=python3.12 ~/harmonize_env
+source ~/harmonize_env/bin/activate
 ```
 * Install NumPy, zerconf, requests, and termcolor Python dependencies via pip:
 ```
@@ -156,7 +157,8 @@ sudo ./setup.sh
 
 * `screen`
 * `cd HarmonizeProject`
-* `./harmonize.py`
+* `source ~/harmonize_env/bin/activate`
+* `./harmonize.py` (ex. for maximum brightness) `./harmonize.py -l 0`
 * Type Ctrl+A and Ctrl-D to continue running the script in the background.
 * To resume the terminal session use `screen -r`
 * Press *ENTER* to safely stop the program.
@@ -183,7 +185,6 @@ sudo ./setup.sh
 * "Import Error" - Ensure you have all the dependencies installed. Run through the manual dependency install instructions above.
 * No video input // lights are all dim gray - Run `python3 ./videotest.py` to see if your device (via OpenCV) can properly read the video input.
 * w, h, or rgbframe not defined - Increase the waiting time from the default 0.75 seconds by passing the `-w` argument *This is a known bug (race condition).
-* python3-opencv installation fails - Compile from source - [Follow this guide.](https://pimylifeup.com/raspberry-pi-opencv/)
 * Sanity check: The output of the command `ls -ltrh /dev/video*` should provide a list of results that includes /dev/video0 when the OS properly detects the video capture card.
 * Many questions are answered on our Reddit release thread [here.](https://www.reddit.com/r/Hue/comments/i1ngqt/release_harmonize_project_sync_hue_lights_with/) New issues should be raised on Github.
 
