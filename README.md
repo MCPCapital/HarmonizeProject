@@ -1,8 +1,8 @@
 Harmonize Project *for Philips Hue*
 ============================
-![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square) [![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.png?v=103)](https://github.com/ellerbrock/open-source-badges/)
+![Pull Requests Welcome](https://img.shields.io/badge/Pull_Requests-welcome-brightgreen) ![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.png?v=103) ![Python 3.12](https://img.shields.io/badge/Python-3.12-brightgreen)
 
-Harmonize Project connects Philips Hue lights and lightstrips to your TV screen content, creating an amazing ambient lighting effect! This application utilizes a low-latency video and color analysis built with Python 3. 
+Harmonize Project connects Philips Hue lights and lightstrips to your TV screen content, creating an amazing ambient lighting effect! This application utilizes a low-latency video and color analysis algorithm developed with Python and OpenCV. 
 
 Check out our Reddit thread [here](https://www.reddit.com/r/Hue/comments/i1ngqt/release_harmonize_project_sync_hue_lights_with/) and watch the demo below! Electromaker explains how our application works at a high level in his podcast [here!](https://youtu.be/tYnvYYWedVc?t=1790)
 
@@ -17,8 +17,6 @@ Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Sign
 * v2.2:   Support for webcam stream input via file/URL
 * v2.1:   Support for multiple Hue bridges
 * v2.0:   Support for gradient lightstrips is now available!
-* v1.3:   Added multicast DNS discovery for detecting bridge
-* v1.2:   Latency now optimized for a single light source centered behind display (use the -s argument at the command prompt to enable)
 
 **Thank you** to all those who have contributed to this project. Please keep your pull requests coming!
 
@@ -92,9 +90,9 @@ source ~/harmonize_env/bin/activate
 ```
 * Install NumPy, zerconf, requests, and termcolor Python dependencies via pip:
 ```
-pip install numpy zeroconf requests termcolor
+pip install numpy=1.26.4 zeroconf requests termcolor
 ```
-* Compile and install OpenCV 4.10.0 from source - [Follow this guide...](https://docs.opencv.org/4.10.0/d7/d9f/tutorial_linux_install.html) Compiling may take a couple of hours depending on the capabilities of your system. Note that if you upgrade Ubuntu to a new release you may need to completely uninstall, recompile, and reinstall OpenCV.
+* Compile and install OpenCV 4.10.0 from source - [Follow this guide...](https://docs.opencv.org/4.10.0/d7/d9f/tutorial_linux_install.html) Compiling may take a couple of hours depending on the capabilities of your system. Note that if you upgrade Ubuntu to a new release you may need to completely uninstall, recompile, and reinstall OpenCV. Note: As of June 16, 2024, numpy 2.0.0 is available, but this project will plan to use 1.26.4 until a minor upgrade release of numpy 2.1 is available.
 ```
 sudo apt install cmake
 sudo apt install python3-dev python3-numpy libpython3-all-dev
@@ -161,7 +159,8 @@ sudo ./setup.sh
 * `./harmonize.py` (ex. for maximum brightness) `./harmonize.py -l 0`
 * Type Ctrl+A and Ctrl-D to continue running the script in the background.
 * To resume the terminal session use `screen -r`
-* Press *ENTER* to safely stop the program.
+* Press *r* then *ENTER* to reset the video capture stream.
+* Press *q* then *ENTER* to safely stop the program.
 
 **Command line arguments:**
 
