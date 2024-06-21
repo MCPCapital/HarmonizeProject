@@ -11,10 +11,11 @@ Check out our Reddit thread [here](https://www.reddit.com/r/Hue/comments/i1ngqt/
 Harmonize Project (formerly known as Harmonize Hue) has no affiliation with Signify or Philips Hue. Hue and Philips Hue are trademarks of Signify.
 
 # New Features
-* v2.4.1: Videocapture reset command added (useful when switching A/V inputs)
+* v2.4.2: Auto-restart videocapture after specificed number of seconds of missed frames
+* v2.4.1: Added videocapture reset command added (useful when switching A/V inputs)
 * v2.4:   Added support for Python 3.12 and Ubuntu 24.04 installation
-* v2.3:   Added support to adjust maximum brightness
-* v2.2:   Support for webcam stream input via file/URL
+* v2.3:   Added adjustment to maximum brightness
+* v2.2:   Added webcam stream input via file/URL
 * v2.1:   Support for multiple Hue bridges
 * v2.0:   Support for gradient lightstrips is now available!
 
@@ -156,7 +157,7 @@ sudo ./setup.sh
 * `screen`
 * `cd HarmonizeProject`
 * `source ~/harmonize_env/bin/activate`
-* `./harmonize.py` (ex. for maximum brightness) `./harmonize.py -l 0`
+* `./harmonize.py` (ex. for maximum brightness and auto-restart after 8 seconds of missed frames) `./harmonize.py -l 0 -a 8`
 * Type Ctrl+A and Ctrl-D to continue running the script in the background.
 * To resume the terminal session use `screen -r`
 * Press *r* then *ENTER* to reset the video capture stream.
