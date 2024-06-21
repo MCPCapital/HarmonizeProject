@@ -6,16 +6,17 @@
 ########## MCP Capital, LLC  ###########
 ########################################
 # Github.com/MCPCapital/harmonizeproject
-# Script Last Updated - Release 2.4.1
+# Script Last Updated - Release 2.4.2
 ########################################
-### -v to enable verbose messages     ##
-### -g # to pre-select a group number ##
-### -b # to pre-select a bridge by id ##
-### -i # to pre-select bridge IP      ##
-### -w # to pre-select video wait time #
-### -f # to pre-select stream filename #
-### -s # single light source optimized #
-### -l # to adjust maximum brightness  #
+# -v to enable verbose messages        #
+# -g # to pre-select a group number    #
+# -b # to pre-select a bridge by id    #
+# -i # to pre-select bridge IP         #
+# -w # to pre-select video wait time   #
+# -f # to pre-select stream filename   #
+# -s # single light source optimized   #
+# -l # to adjust maximum brightness    #
+# -a # restart stream after x seconds  #
 ########################################
 
 import sys
@@ -64,6 +65,7 @@ parser.add_argument("-s","--single_light", dest="single_light", action="store_tr
 parser.add_argument("-w","--video_wait_time", dest="video_wait_time", type=float, default=5.0)
 parser.add_argument("-f","--stream_filename", dest="stream_filename")
 parser.add_argument("-l","--light_brightness", dest="light_brightness", type=int, default=30)
+parser.add_argument("-a","--auto_restart", dest="auto_restart", type=int, default=0)
 
 commandlineargs = parser.parse_args()
 
@@ -326,7 +328,6 @@ def averageimage():
         for x, c in rgb.items():
             rgb_bytes[x] = bytearray([int(c[0]/2), int(c[0]/2), int(c[1]/2), int(c[1]/2), int(c[2]/2), int(c[2]/2),] )
             
-
 ######################################################
 ############ Video Capture Setup #####################
 ######################################################
@@ -361,12 +362,8 @@ def cv2input_to_buffer(): ######### Section opens the device, sets buffer, pulls
 
 ########## This section loops & pulls re-colored frames and alwyas get the newest frame 
     cap.set(cv2.CAP_PROP_BUFFERSIZE,0) # No frame buffer to avoid lagging, always grab newest frame
-    #ct = 0 ######ct code grabs every X frame as indicated below
+    missed_frame_count = 0
     while not stopped:
-        #ct += 1
-        #ret = cap.grab() #constantly grabs frames
-        #if ct % 1 == 0: # Skip frames (1=don't skip,2=skip half,3=skip 2/3rds)
-        #ret, bgrframe = cap.retrieve() #processes most recent frame
         ret, bgrframe = cap.read() # processes most recent frame
         if ret: # if frame is read properly
             if is_single_light:
@@ -374,11 +371,13 @@ def cv2input_to_buffer(): ######### Section opens the device, sets buffer, pulls
             else:
                 bgrframe = adjust_brightness(bgrframe,commandlineargs.light_brightness)
                 rgbframe = cv2.cvtColor(bgrframe, cv2.COLOR_BGR2RGB) #corrects BGR to RGB
-                #verbose('BGrframe is :',bgrframe)
         else:
             print("WARNING: Unable to read frame from video stream")
             time.sleep(1)
-        # if not ret: break
+            missed_frame_count += 1
+            if commandlineargs.auto_restart > 0:
+                if missed_frame_count % commandlineargs.auto_restart == 0: # restart after certain amount of seconds have passed
+                    cap.open(0)
 
 def adjust_brightness(raw, value):
     hsv = cv2.cvtColor(raw, cv2.COLOR_BGR2HSV)
@@ -391,7 +390,6 @@ def adjust_brightness(raw, value):
     final_hsv = cv2.merge((h, s, v))
     raw = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
     return raw
-
 
 ######################################################
 ############## Sending the messages ##################
@@ -414,7 +412,7 @@ def buffer_to_light(proc): #Potentially thread this into 2 processes?
  
         bufferlock.release()
         proc.stdin.write(message.decode('utf-8','ignore'))
-        time.sleep(.015) #0.01 to 0.02 (slightly under 100 or 50 messages per sec // or (.015 = ~66.6))
+        time.sleep(.0167) #0.01 to 0.02 (slightly under 100 or 50 messages per sec // or (.0167 = ~60))
         proc.stdin.flush()
         #verbose('Wrote message and flushed. Briefly waiting') #This will verbose after every send, spamming the console.
 
