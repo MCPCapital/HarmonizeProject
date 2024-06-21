@@ -157,7 +157,7 @@ sudo ./setup.sh
 * `screen`
 * `cd HarmonizeProject`
 * `source ~/harmonize_env/bin/activate`
-* `./harmonize.py` (ex. for maximum brightness and auto-restart after 8 seconds of missed frames) `./harmonize.py -l 0 -a 8`
+* `./harmonize.py` (ex. maximum brightness and auto-restart after 8 seconds of missed frames) `./harmonize.py -l 0 -a 8`
 * Type Ctrl+A and Ctrl-D to continue running the script in the background.
 * To resume the terminal session use `screen -r`
 * Press *r* then *ENTER* to reset the video capture stream.
