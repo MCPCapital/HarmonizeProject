@@ -89,10 +89,13 @@ experiment, not an initial correction.
 
 ### Timing and latency
 
-The deployed `update_interval_seconds` is `0.05`, applied after each completed
-packet send. Its nominal ceiling is therefore 20 updates per second. A passive
-live observation during discovery measured system UDP output consistent with
-approximately 19 Hue updates per second.
+The released v3.0 control and backward-compatible public default use
+`update_interval_seconds = 0.05`, applied after each completed packet send.
+Its nominal ceiling is therefore 20 updates per second. A passive live
+observation during discovery measured system UDP output consistent with
+approximately 19 Hue updates per second. At Milestone 9 closeout, the owner Pi
+explicitly opts into `0.033`; that device-specific choice does not change the
+public default.
 
 The capture worker continuously drains its OpenCV source, retains only the
 newest application-level frame, and wakes the controller when a newer
@@ -811,3 +814,55 @@ Rollback is configuration-only after installation: set
 `update_interval_seconds = 0.05`, then restart `harmonize.service`. Both code
 paths remain tested and available. The implementation does not merge to
 `master`.
+
+## Milestone 9 closeout - 2026-09-15
+
+Milestone 9 is complete and accepted on `m9-ambilight-quality`. The final
+owner-observed evening soak used the deployed combination of
+`color_processing_mode = "direct_rgb"`, `update_interval_seconds = 0.033`, and
+`brightness_adjustment = 0`. It looked good, with no noticeable problem in
+colors, brightness, or light behavior. This extends the earlier controlled
+visual trial from a short observation to normal evening viewing and records the
+subjective result as **visually acceptable / no noticeable degradation**.
+
+The compatibility boundary remains deliberate:
+
+- Public and absent-setting defaults are `legacy_hsv` and 0.050 seconds. The
+  generic example retains those settings and therefore preserves released
+  v3.0.0 processing and pacing.
+- The owner Pi remains explicitly configured for `direct_rgb`, 0.033 seconds,
+  and zero brightness adjustment. Closeout does not change that deployment
+  back to the public defaults.
+- `direct_rgb` is not output-equivalent to the legacy HSV round trip. It is an
+  opt-in performance/visual tradeoff, is valid only at zero brightness
+  adjustment, and keeps the tested legacy path available for compatibility and
+  immediate configuration-only rollback.
+- The asynchronous Hue status monitor is retained. It removed the recurring
+  synchronous network delay from the packet path while preserving the existing
+  inactive/error recovery policy.
+- The effective four-buffer V4L2 capture behavior is retained. Native and
+  OpenCV timestamp measurements found no meaningful steady-state stale-frame
+  queue, and reducing buffers showed no normal-path benefit worth the added
+  dropped-frame, jitter, and recovery risk.
+- 33 ms pacing remains an explicit option, not the public default. It increased
+  measured update cadence, remained stable, and completed the evening soak
+  without observed visual problems.
+
+Runtime reporting is part of the accepted interface. Local STATUS carries a
+`performance` object, and trusted-LAN HTTP STATUS returns only current state
+plus `color_processing_mode`, `update_interval_seconds`, and
+`brightness_adjustment`. The options and response shape are documented in
+`README.md`, `harmonize.example.toml`, and `docs/milestone-8-http.md`; no
+credentials or other sensitive configuration are exposed.
+
+No further smoothing, gamma, saturation, dominant-color, black-bar,
+dark-scene, scene-change, or other visual-processing experiment is justified
+merely to extend this milestone. Those ideas remain deferred unless a future
+observation and separate owner authorization establish a concrete need.
+
+This closeout changes documentation only. The previously recorded 129-test
+implementation validation remains applicable, and the automated suite was not
+rerun as requested. At closeout the installed performance settings still
+reported `direct_rgb`, 0.033 seconds, and brightness zero; both services were
+active/running with zero restarts. The owner had left the lifecycle in IDLE
+after the soak, and closeout did not change runtime state or configuration.
