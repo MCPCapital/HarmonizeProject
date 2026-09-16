@@ -18,10 +18,11 @@ recovery_initial_seconds = 1.0
 [ambilight]
 video_wait_seconds = 2.0
 brightness_adjustment = 0
+color_processing_mode = "direct_rgb"
 auto_restart_seconds = 0.0
 single_light = false
 sample_breadth = 0.15
-update_interval_seconds = 0.05
+update_interval_seconds = 0.033
 exception_cleanup_behavior = "restore"
 
 [logging]

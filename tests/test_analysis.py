@@ -47,6 +47,42 @@ class AnalysisTests(unittest.TestCase):
         )
         self.assertEqual(analyzer.colors(frame), {3: (80, 40, 20)})
 
+    def test_legacy_mode_preserves_lossy_zero_adjustment_output(self):
+        channel = Channel(channel_id=3, x=0.0, y=0.0, z=0.0)
+        frame = np.full((2, 2, 3), (0, 1, 60), dtype=np.uint8)
+        analyzer = FrameAnalyzer(
+            channels=(channel,),
+            width=2,
+            height=2,
+            brightness_adjustment=0,
+            breadth=1.0,
+            single_light=False,
+            color_processing_mode="legacy_hsv",
+        )
+        colors = analyzer.colors(frame)
+        self.assertEqual(colors, {3: (60, 2, 0)})
+        self.assertEqual(
+            legacy_rgb_bytes(colors)[3], bytes((30, 30, 1, 1, 0, 0))
+        )
+
+    def test_direct_rgb_mode_bypasses_lossy_hsv_round_trip(self):
+        channel = Channel(channel_id=3, x=0.0, y=0.0, z=0.0)
+        frame = np.full((2, 2, 3), (0, 1, 60), dtype=np.uint8)
+        analyzer = FrameAnalyzer(
+            channels=(channel,),
+            width=2,
+            height=2,
+            brightness_adjustment=0,
+            breadth=1.0,
+            single_light=False,
+            color_processing_mode="direct_rgb",
+        )
+        colors = analyzer.colors(frame)
+        self.assertEqual(colors, {3: (60, 1, 0)})
+        self.assertEqual(
+            legacy_rgb_bytes(colors)[3], bytes((30, 30, 0, 0, 0, 0))
+        )
+
     def test_single_light_preserves_legacy_brightness_bypass_and_channel_one(self):
         channel = Channel(channel_id=9, x=0.0, y=0.0, z=0.0)
         frame = np.full((2, 2, 3), (10, 20, 30), dtype=np.uint8)

@@ -11,8 +11,13 @@ these exact GET request targets:
 /?harmonize=status
 ```
 
-ON and OFF return `{"command":"ON","state":"accepted"}` (or OFF). STATUS
-returns the supervisor's current actual state, for example `{"state":"IDLE"}`.
+ON and OFF return `{"command":"ON","state":"accepted"}` (or OFF). As of
+Milestone 9, STATUS returns the current actual state plus a whitelisted
+`performance` object containing `color_processing_mode`,
+`update_interval_seconds`, and `brightness_adjustment`. It intentionally omits
+credentials, network configuration, paths, and other internal status detail.
+For example: `{"state":"IDLE","performance":{"color_processing_mode":`
+`"legacy_hsv","update_interval_seconds":0.05,"brightness_adjustment":0}}`.
 Missing values, unsupported values, alternate paths, duplicate parameters, and
 extra parameters return HTTP 400 without reaching the control socket. Non-GET
 methods return HTTP 405. An unavailable daemon returns HTTP 503.

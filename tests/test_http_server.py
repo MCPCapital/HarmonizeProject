@@ -15,7 +15,14 @@ class HTTPServerTests(unittest.TestCase):
         self.updates = []
         self.provider = LocalCommandProvider(
             self.socket_path,
-            status=lambda: {"actual_state": "IDLE"},
+            status=lambda: {
+                "actual_state": "IDLE",
+                "performance": {
+                    "color_processing_mode": "direct_rgb",
+                    "update_interval_seconds": 0.033,
+                    "brightness_adjustment": 0,
+                },
+            },
         )
         self.provider.start(
             lambda desired, policy: self.updates.append((desired, policy))
@@ -41,11 +48,17 @@ class HTTPServerTests(unittest.TestCase):
         connection.close()
         return result
 
-    def test_status_returns_concise_state(self):
+    def test_status_returns_concise_state_and_performance_config(self):
         status, headers, body = self.request("GET", "/?harmonize=status")
         self.assertEqual(status, 200)
         self.assertIn(("Cache-Control", "no-store"), headers)
-        self.assertEqual(body, b'{"state":"IDLE"}\n')
+        self.assertEqual(
+            body,
+            b'{"state":"IDLE","performance":{'
+            b'"color_processing_mode":"direct_rgb",'
+            b'"update_interval_seconds":0.033,'
+            b'"brightness_adjustment":0}}\n',
+        )
 
     def test_on_and_off_reach_local_provider(self):
         status, _, body = self.request("GET", "/?harmonize=on")

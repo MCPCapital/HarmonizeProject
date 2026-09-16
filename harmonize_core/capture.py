@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+from collections import deque
+from dataclasses import dataclass
 import logging
+import statistics
 import threading
 import time
 from typing import Any
@@ -15,6 +18,21 @@ from .observability import log_event
 
 class CaptureReadError(HarmonizeError):
     """A bounded frame-read failure while the worker recovers."""
+
+
+@dataclass(frozen=True)
+class CapturedFrame:
+    """One copied frame plus timing needed for aggregate stream metrics."""
+
+    frame: Any
+    captured_monotonic: float
+    generation: int
+    replaced_frames: int
+
+
+def _percentile(values: list[float], fraction: float) -> float:
+    ordered = sorted(values)
+    return ordered[round((len(ordered) - 1) * fraction)]
 
 
 class CaptureSource:
@@ -58,6 +76,8 @@ class CaptureSource:
         self._consumed_generation = 0
         self._last_error: Exception | None = None
         self.last_frame_monotonic: float | None = None
+        self._previous_frame_monotonic: float | None = None
+        self._arrival_intervals: deque[float] = deque(maxlen=4096)
 
     @property
     def source_description(self) -> str:
@@ -91,8 +111,38 @@ class CaptureSource:
             raise CaptureReadError(
                 f"Unable to open capture source {self.source_description}"
             )
-        capture.set(self._cv2.CAP_PROP_BUFFERSIZE, 0)
+        buffer_accepted = capture.set(self._cv2.CAP_PROP_BUFFERSIZE, 0)
         self._capture = capture
+        get = getattr(capture, "get", None)
+        backend_name = getattr(capture, "getBackendName", None)
+        fourcc_value = int(get(self._cv2.CAP_PROP_FOURCC)) if get else None
+        properties = {
+            "width": int(get(self._cv2.CAP_PROP_FRAME_WIDTH)) if get else None,
+            "height": int(get(self._cv2.CAP_PROP_FRAME_HEIGHT)) if get else None,
+            "reported_fps": round(get(self._cv2.CAP_PROP_FPS), 3) if get else None,
+            "fourcc": (
+                "".join(
+                    chr((fourcc_value >> (8 * index)) & 0xFF)
+                    for index in range(4)
+                )
+                if fourcc_value is not None
+                else None
+            ),
+            "buffer_size_reported": (
+                round(get(self._cv2.CAP_PROP_BUFFERSIZE), 3) if get else None
+            ),
+        }
+        log_event(
+            self._logger,
+            logging.INFO,
+            "capture_opened",
+            source=self.source_description,
+            backend_requested=self.backend,
+            backend_actual=backend_name() if backend_name else None,
+            buffer_size_requested=0,
+            buffer_size_accepted=bool(buffer_accepted),
+            **properties,
+        )
 
     def open(self) -> None:
         if self._thread is not None:
@@ -120,12 +170,6 @@ class CaptureSource:
         while not self._stop_requested.is_set():
             try:
                 self._open_handle()
-                log_event(
-                    self._logger,
-                    logging.INFO,
-                    "capture_opened",
-                    source=self.source_description,
-                )
                 backoff = self.reconnect_initial_seconds
                 while not self._stop_requested.is_set():
                     if self._reset_requested.is_set():
@@ -139,10 +183,16 @@ class CaptureSource:
                         raise CaptureReadError(
                             f"Unable to read from {self.source_description}"
                         )
+                    captured_at = time.monotonic()
                     with self._condition:
                         self._latest_frame = frame
                         self._generation += 1
-                        self.last_frame_monotonic = time.monotonic()
+                        if self._previous_frame_monotonic is not None:
+                            self._arrival_intervals.append(
+                                captured_at - self._previous_frame_monotonic
+                            )
+                        self._previous_frame_monotonic = captured_at
+                        self.last_frame_monotonic = captured_at
                         self._last_error = None
                         self._ready.set()
                         self._condition.notify_all()
@@ -166,7 +216,7 @@ class CaptureSource:
         with self._condition:
             self._condition.notify_all()
 
-    def read(self):
+    def read_sample(self) -> CapturedFrame:
         deadline = time.monotonic() + self.read_timeout_seconds
         with self._condition:
             while (
@@ -187,9 +237,42 @@ class CaptureSource:
                 self._condition.wait(remaining)
             if self._generation <= self._consumed_generation:
                 raise CaptureReadError("Capture stopped before a new frame arrived")
-            self._consumed_generation = self._generation
+            generation = self._generation
+            replaced_frames = max(
+                0, generation - self._consumed_generation - 1
+            )
+            self._consumed_generation = generation
             frame = self._latest_frame
-        return frame.copy()
+            captured_at = self.last_frame_monotonic or time.monotonic()
+        return CapturedFrame(
+            frame=frame.copy(),
+            captured_monotonic=captured_at,
+            generation=generation,
+            replaced_frames=replaced_frames,
+        )
+
+    def read(self):
+        """Retain the pre-instrumentation frame-only interface."""
+
+        return self.read_sample().frame
+
+    def timing_snapshot(self) -> dict[str, float | int] | None:
+        """Return and reset aggregate capture-arrival timing."""
+
+        with self._condition:
+            values = list(self._arrival_intervals)
+            self._arrival_intervals.clear()
+        if not values:
+            return None
+        mean_interval = statistics.fmean(values)
+        return {
+            "samples": len(values),
+            "effective_capture_rate_hz": round(1 / mean_interval, 3),
+            "mean_ms": round(mean_interval * 1000, 3),
+            "median_ms": round(statistics.median(values) * 1000, 3),
+            "p95_ms": round(_percentile(values, 0.95) * 1000, 3),
+            "max_ms": round(max(values) * 1000, 3),
+        }
 
     def request_reset(self) -> None:
         self._reset_requested.set()

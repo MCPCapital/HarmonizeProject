@@ -18,6 +18,18 @@ class FakeCapture:
     def set(self, key, value):
         return True
 
+    def get(self, key):
+        return {
+            3: 3,
+            4: 2,
+            5: 60,
+            6: 1196444237,
+            38: 1,
+        }.get(key, 0)
+
+    def getBackendName(self):
+        return "FAKE"
+
     def read(self):
         time.sleep(0.001)
         if self.released or not self.read_ok:
@@ -33,6 +45,10 @@ class FakeCv2:
     CAP_V4L2 = 200
     CAP_ANY = 0
     CAP_PROP_BUFFERSIZE = 38
+    CAP_PROP_FRAME_WIDTH = 3
+    CAP_PROP_FRAME_HEIGHT = 4
+    CAP_PROP_FPS = 5
+    CAP_PROP_FOURCC = 6
 
     def __init__(self, read_results=None):
         self.calls = []
@@ -114,6 +130,24 @@ class CaptureTests(unittest.TestCase):
         frame = source.read()
         self.assertEqual(frame.shape, (2, 3, 3))
         self.assertGreaterEqual(len(fake_cv2.calls), 2)
+        source.close()
+
+    def test_sample_reports_age_generation_and_replaced_frames(self):
+        fake_cv2 = FakeCv2()
+        source = self.make_source(fake_cv2, device_index=0)
+        source.open()
+        first = source.read_sample()
+        self.assertEqual(first.frame.shape, (2, 3, 3))
+        self.assertGreater(first.captured_monotonic, 0)
+        self.assertGreaterEqual(first.generation, 1)
+        self.assertGreaterEqual(first.replaced_frames, 0)
+        self.assertTrue(wait_for(lambda: source._generation >= first.generation + 2))
+        second = source.read_sample()
+        self.assertGreaterEqual(second.replaced_frames, 1)
+        timing = source.timing_snapshot()
+        self.assertIsNotNone(timing)
+        self.assertGreater(timing["samples"], 0)
+        self.assertGreater(timing["mean_ms"], 0)
         source.close()
 
     def test_close_unblocks_worker_and_is_bounded(self):

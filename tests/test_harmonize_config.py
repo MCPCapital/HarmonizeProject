@@ -25,6 +25,8 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(config.hue.entertainment_area, "TV area")
         self.assertEqual(config.capture.backend, "gstreamer")
         self.assertEqual(config.control.provider, "local")
+        self.assertEqual(config.ambilight.color_processing_mode, "legacy_hsv")
+        self.assertEqual(config.ambilight.update_interval_seconds, 0.05)
         self.assertEqual(
             config.control.socket_path,
             (example.parent / "run/harmonize.sock").resolve(),
@@ -81,6 +83,34 @@ class ConfigTests(unittest.TestCase):
             '[ambilight]\nsample_breadth = 2.0\n'
         )
         with self.assertRaisesRegex(ConfigError, "sample_breadth"):
+            load_config(path, unattended=True)
+
+    def test_direct_rgb_and_33_ms_pacing_are_accepted(self):
+        path = self.write_config(
+            '[hue]\nentertainment_area = "TV area"\n'
+            '[ambilight]\nbrightness_adjustment = 0\n'
+            'color_processing_mode = "direct_rgb"\n'
+            'update_interval_seconds = 0.033\n'
+        )
+        config = load_config(path, unattended=True)
+        self.assertEqual(config.ambilight.color_processing_mode, "direct_rgb")
+        self.assertEqual(config.ambilight.update_interval_seconds, 0.033)
+
+    def test_unknown_color_processing_mode_is_rejected(self):
+        path = self.write_config(
+            '[hue]\nentertainment_area = "TV area"\n'
+            '[ambilight]\ncolor_processing_mode = "automatic"\n'
+        )
+        with self.assertRaisesRegex(ConfigError, "color_processing_mode"):
+            load_config(path, unattended=True)
+
+    def test_direct_rgb_requires_zero_brightness_adjustment(self):
+        path = self.write_config(
+            '[hue]\nentertainment_area = "TV area"\n'
+            '[ambilight]\nbrightness_adjustment = 1\n'
+            'color_processing_mode = "direct_rgb"\n'
+        )
+        with self.assertRaisesRegex(ConfigError, "requires brightness_adjustment"):
             load_config(path, unattended=True)
 
     def test_obsolete_post_stream_behavior_is_rejected(self):

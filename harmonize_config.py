@@ -49,6 +49,7 @@ class ControlConfig:
 class AmbilightConfig:
     video_wait_seconds: float = 2.0
     brightness_adjustment: int = 0
+    color_processing_mode: str = "legacy_hsv"
     auto_restart_seconds: float = 0.0
     single_light: bool = False
     sample_breadth: float = 0.15
@@ -126,6 +127,7 @@ _KEYS = {
     "ambilight": {
         "video_wait_seconds",
         "brightness_adjustment",
+        "color_processing_mode",
         "auto_restart_seconds",
         "single_light",
         "sample_breadth",
@@ -314,6 +316,27 @@ def load_config(path: str | Path, *, unattended: bool) -> HarmonizeConfig:
             "ambilight.exception_cleanup_behavior must be one of: restore, off"
         )
 
+    brightness_adjustment = _integer(
+        ambilight_values,
+        "brightness_adjustment",
+        0,
+        minimum=-255,
+        maximum=255,
+    )
+    color_processing_mode = _string(
+        ambilight_values, "color_processing_mode", default="legacy_hsv"
+    )
+    if color_processing_mode not in {"legacy_hsv", "direct_rgb"}:
+        raise ConfigError(
+            "ambilight.color_processing_mode must be one of: "
+            "legacy_hsv, direct_rgb"
+        )
+    if color_processing_mode == "direct_rgb" and brightness_adjustment != 0:
+        raise ConfigError(
+            "ambilight.color_processing_mode direct_rgb requires "
+            "brightness_adjustment = 0"
+        )
+
     log_level = _string(logging_values, "level", default="INFO")
     assert log_level is not None
     log_level = log_level.upper()
@@ -414,13 +437,8 @@ def load_config(path: str | Path, *, unattended: bool) -> HarmonizeConfig:
             video_wait_seconds=_number(
                 ambilight_values, "video_wait_seconds", 2.0, minimum=0.0
             ),
-            brightness_adjustment=_integer(
-                ambilight_values,
-                "brightness_adjustment",
-                0,
-                minimum=-255,
-                maximum=255,
-            ),
+            brightness_adjustment=brightness_adjustment,
+            color_processing_mode=color_processing_mode,
             auto_restart_seconds=_number(
                 ambilight_values, "auto_restart_seconds", 0.0, minimum=0.0
             ),

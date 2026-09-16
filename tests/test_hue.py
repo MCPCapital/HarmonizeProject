@@ -87,13 +87,40 @@ class FakeSession:
     def __init__(self, responses):
         self.responses = list(responses)
         self.requests = []
+        self.closed = False
 
     def request(self, method, url, **kwargs):
         self.requests.append((method, url, kwargs))
         return self.responses.pop(0)
 
     def close(self):
-        return None
+        self.closed = True
+
+
+class HueBridgeSessionTests(unittest.TestCase):
+    def test_close_closes_owned_session(self):
+        session = FakeSession([])
+        bridge = HueBridge("192.0.2.1", "user", session=session)
+        bridge.close()
+        self.assertTrue(session.closed)
+
+    def test_new_session_preserves_connection_settings(self):
+        session = FakeSession([])
+        bridge = HueBridge(
+            "192.0.2.1",
+            "user",
+            session=session,
+            timeout_seconds=2.5,
+        )
+        child = bridge.new_session()
+        try:
+            self.assertIsNot(child, bridge)
+            self.assertEqual(child.bridge_ip, bridge.bridge_ip)
+            self.assertEqual(child.username, bridge.username)
+            self.assertEqual(child._timeout, 2.5)
+            self.assertIsNot(child._session, session)
+        finally:
+            child.close()
 
 
 class HueLightTests(unittest.TestCase):
