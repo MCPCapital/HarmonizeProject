@@ -333,32 +333,27 @@ DTLS. client.json is a secret: it is ignored by Git, must never be pasted into
 issues or logs, and must be mode 0600. Reuse an existing compatible file when
 available.
 
-For first registration, substitute the bridge's LAN address in the URL below.
-Press the large link button on the bridge immediately before running the
-command. The pipeline writes the returned success object directly to a new
-private file and does not print the credential values:
+First-time pairing is an explicit setup action; normal application startup
+never registers implicitly. The pairing tool discovers a single bridge on the
+local network through Hue mDNS (`_hue._tcp.local.`), prompts for the bridge link
+button, and creates `client.json` without printing its credential values:
 
 ~~~console
 cd /home/pi/HarmonizeProject
-umask 077
-curl --silent --show-error --fail-with-body \
-  --header 'Content-Type: application/json' \
-  --data '{"devicetype":"harmonize-modernized","generateclientkey":true}' \
-  'http://192.0.2.20/api' |
-python3.12 -c '
-import json, sys
-response = json.load(sys.stdin)
-if not response or "success" not in response[0]:
-    raise SystemExit("Bridge registration failed; press the link button and retry")
-with open("client.json", "x", encoding="utf-8") as output:
-    json.dump(response[0]["success"], output)
-'
-chmod 600 client.json
+/home/pi/harmonize_env/bin/python tools/register_hue.py
 ~~~
 
-If client.json already exists, the exclusive create deliberately refuses to
-overwrite it. Back it up securely or remove it only if you intentionally want
-to register a new Hue application.
+If local discovery is unavailable, `-i` is the explicit manual bridge-IP
+override/fallback:
+
+~~~console
+/home/pi/harmonize_env/bin/python tools/register_hue.py -i 192.0.2.20
+~~~
+
+Pairing uses no cloud discovery. If multiple bridges are found, specify the
+intended bridge with `-i`. If `client.json` already exists, the tool refuses to
+contact the bridge or overwrite the file. Back it up securely or remove it only
+if you intentionally want to register a new Hue application.
 
 ### 8. Configure and validate Harmonize
 
@@ -401,6 +396,11 @@ area check:
 The first command does not contact the bridge. The second contacts Hue only to
 confirm that exactly one named Entertainment area exists; it does not start
 streaming.
+
+At normal startup, Harmonize also discovers the bridge locally by mDNS unless
+`hue.bridge_ip` is configured or the legacy `-i` command-line option supplies an
+explicit override. It does not use Hue cloud discovery and does not register a
+new application implicitly.
 
 ### 9. Test end to end in the foreground
 

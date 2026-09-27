@@ -539,7 +539,7 @@ def load_credentials(path: str | Path, *, unattended: bool) -> HueCredentials:
     except FileNotFoundError as exc:
         raise ConfigError(
             f"Hue credentials file not found: {credential_path}. "
-            "Register with the bridge in manual mode first."
+            "Run tools/register_hue.py to pair with the bridge first."
         ) from exc
     except OSError as exc:
         raise ConfigError(f"Cannot inspect Hue credentials file: {exc}") from exc
