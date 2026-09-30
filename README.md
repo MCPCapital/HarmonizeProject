@@ -315,76 +315,42 @@ Distribution upgrades may require rebuilding OpenCV and recreating the link.
 The [OpenCV Linux build guide](https://docs.opencv.org/4.10.0/d7/d9f/tutorial_linux_install.html)
 provides additional compiler/build details.
 
-### 6. Configure Hue Entertainment
+### 6. Create a Hue Entertainment area
 
 In the Hue app, open **Settings -> Entertainment areas**, create an area, add
-the lights around the TV, and place them to match their physical locations.
-Harmonize uses the horizontal position and height relative to the screen; the
-depth coordinate is ignored by the current color mapping.
+the lights around the display, and position them to match the room. The area
+can have any name; the setup wizard lists all available areas for selection.
 
-Name the area **TV area** to use the accepted defaults. Harmonize resolves the
-configured name exactly and refuses missing or ambiguous matches before
-starting Entertainment streaming.
+### 7. Run first-time setup
 
-### 7. Register safely and create client.json
-
-Harmonize needs a Hue application username and client key for Entertainment
-DTLS. client.json is a secret: it is ignored by Git, must never be pasted into
-issues or logs, and must be mode 0600. Reuse an existing compatible file when
-available.
-
-First-time pairing is an explicit setup action; normal application startup
-never registers implicitly. The pairing tool discovers a single bridge on the
-local network through Hue mDNS (`_hue._tcp.local.`), prompts for the bridge link
-button, and creates `client.json` without printing its credential values:
+Make sure the Pi and Hue Bridge are on the same LAN, then run:
 
 ~~~console
 cd /home/pi/HarmonizeProject
-/home/pi/harmonize_env/bin/python tools/register_hue.py
+/home/pi/harmonize_env/bin/python setup_harmonize.py
 ~~~
 
-If local discovery is unavailable, `-i` is the explicit manual bridge-IP
-override/fallback:
+The wizard discovers local bridges with mDNS, offers a choice when multiple
+bridges are found, guides link-button pairing, lists the Entertainment areas,
+and creates both private `client.json` credentials and `harmonize.toml` with
+the selected area and stable bridge ID.
+
+No manual bridge IP, group number, or credential-file creation is normally
+required. If mDNS is unavailable, rerun with the bridge LAN IP as a fallback:
 
 ~~~console
-/home/pi/harmonize_env/bin/python tools/register_hue.py -i 192.0.2.20
+/home/pi/harmonize_env/bin/python setup_harmonize.py -i 192.0.2.20
 ~~~
 
-Pairing uses no cloud discovery. If multiple bridges are found, specify the
-intended bridge with `-i`. If `client.json` already exists, the tool refuses to
-contact the bridge or overwrite the file. Back it up securely or remove it only
-if you intentionally want to register a new Hue application.
+Keep `client.json` secret and never commit or share it. Rerunning the wizard
+reuses existing credentials and asks before updating `harmonize.toml`. Setup
+does not use cloud discovery, and normal startup never creates credentials.
 
-### 8. Configure and validate Harmonize
+### 8. Review and validate
 
-Copy the non-secret example and review every section:
-
-~~~console
-cp harmonize.example.toml harmonize.toml
-chmod 600 harmonize.toml
-~~~
-
-Important settings are:
-
-- hue.entertainment_area: exact, case-sensitive area name; default TV area.
-- hue.credentials_file: path to the protected client.json.
-- Optional hue.bridge_ip: useful when discovery is unreliable.
-- capture.device_index, stable capture.device_path, capture.backend, or
-  capture.stream_source (a path/URL). A device path and stream source are
-  mutually exclusive.
-- `ambilight.color_processing_mode` defaults to `legacy_hsv`, preserving
-  v3.0.0 output. The `direct_rgb` performance mode is an explicit opt-in and
-  is valid only with `brightness_adjustment = 0`.
-- `ambilight.update_interval_seconds` defaults to the released 0.05-second
-  pacing. The measured faster option is `0.033` seconds.
-- The remaining ambilight settings control brightness adjustment, sample
-  breadth, single-light optimization, restart timing, and exceptional cleanup.
-- The reliability, control, light_state, and logging tables control timeouts,
-  socket/state/health paths, recovery, and logging.
-
-Unknown keys and invalid values are rejected. Keep secrets out of TOML. Validate
-syntax and credential permissions offline, then perform the separate read-only
-area check:
+Review the generated `harmonize.toml`, especially the capture settings. Use a
+stable `/dev/v4l/by-id/...-video-index0` value for `capture.device_path` when
+available, then validate the configuration and selected Hue area:
 
 ~~~console
 /home/pi/harmonize_env/bin/python tools/validate_config.py \
@@ -393,47 +359,32 @@ area check:
   --config harmonize.toml --check-area
 ~~~
 
-The first command does not contact the bridge. The second contacts Hue only to
-confirm that exactly one named Entertainment area exists; it does not start
-streaming.
+The first command is offline. The second contacts Hue but does not start
+Entertainment streaming.
 
-At normal startup, Harmonize also discovers the bridge locally by mDNS unless
-`hue.bridge_ip` is configured or the legacy `-i` command-line option supplies an
-explicit override. It does not use Hue cloud discovery and does not register a
-new application implicitly.
+### 9. Test in the foreground
 
-### 9. Test end to end in the foreground
-
-Start the daemon in one terminal. Successful startup resolves the bridge and
-area, creates the private local socket, and waits in IDLE:
+Start Harmonize in one terminal; a successful launch waits safely in IDLE:
 
 ~~~console
 cd /home/pi/HarmonizeProject
 /home/pi/harmonize_env/bin/python harmonize.py --config harmonize.toml
 ~~~
 
-In a second terminal:
+From a second terminal, start and stop synchronization:
 
 ~~~console
 cd /home/pi/HarmonizeProject
-/home/pi/harmonize_env/bin/python tools/harmonize_control.py \
-  STATUS --config harmonize.toml
 /home/pi/harmonize_env/bin/python tools/harmonize_control.py \
   ON --config harmonize.toml
 /home/pi/harmonize_env/bin/python tools/harmonize_control.py \
   OFF --config harmonize.toml
 ~~~
 
-ON waits for STREAMING; verify that only the selected area's lights follow the
-display. OFF waits for IDLE; verify that every light in that area powers off
-and Hue Entertainment is no longer active. Stop the foreground daemon with
-Ctrl-C only after the OFF check. SIGINT/SIGTERM uses bounded normal cleanup.
-
-For manual or diagnostic operation, --config selects TOML, --check-area
-performs read-only area validation, --run-seconds bounds a run, and
---health-file overrides the health snapshot. The historical -v, -g, -b, -i,
--s, -w, -f, -l, and -a arguments remain accepted for compatibility. The
-versioned TOML model is preferred for reproducible unattended operation.
+Verify that ON reaches STREAMING and the selected area's lights follow the
+display. Verify that OFF returns to IDLE and powers those lights off, then stop
+the foreground process with Ctrl-C. Continue below to install the boot-started
+appliance services.
 
 ## Install the appliance services
 

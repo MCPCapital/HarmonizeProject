@@ -34,6 +34,7 @@ from .state_machine import AmbilightSupervisor
 @dataclass(frozen=True)
 class RuntimeOptions:
     bridge_ip: str | None
+    bridge_id: str | None
     credentials_file: Path
     entertainment_area: str | None
     capture_device: int
@@ -127,6 +128,7 @@ def _runtime_options(
     if config is None:
         return RuntimeOptions(
             bridge_ip=args.bridgeip,
+            bridge_id=args.bridgeid,
             credentials_file=Path("client.json").resolve(),
             entertainment_area=None,
             capture_device=0,
@@ -163,7 +165,12 @@ def _runtime_options(
             }
         )
     return RuntimeOptions(
-        bridge_ip=args.bridgeip or config.hue.bridge_ip,
+        bridge_ip=(
+            args.bridgeip
+            if args.bridgeip is not None
+            else None if args.bridgeid is not None else config.hue.bridge_ip
+        ),
+        bridge_id=args.bridgeid or config.hue.bridge_id,
         credentials_file=config.hue.credentials_file,
         entertainment_area=config.hue.entertainment_area,
         capture_device=config.capture.device_index,
@@ -197,11 +204,7 @@ def _runtime_options(
 
 
 def _resolve_bridge(args: argparse.Namespace, options: RuntimeOptions) -> str:
-    if args.bridgeid and not options.bridge_ip:
-        raise HarmonizeError(
-            "--bridgeid requires --bridgeip for deterministic headless startup"
-        )
-    return options.bridge_ip or discover_bridge()
+    return options.bridge_ip or discover_bridge(bridge_id=options.bridge_id)
 
 
 def _write_health(

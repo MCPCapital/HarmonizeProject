@@ -35,6 +35,14 @@ class EntertainmentArea:
     light_ids: tuple[str, ...] = ()
 
 
+@dataclass(frozen=True)
+class DiscoveredBridge:
+    bridge_id: str
+    address: str
+    model_id: str | None
+    service_name: str
+
+
 def _legacy_group_id(resource: dict[str, Any]) -> str:
     match = re.search(r"\d+", str(resource.get("id_v1", "")))
     if not match:
@@ -140,18 +148,33 @@ def select_area_interactively(
 
 class _HueListener(ServiceListener):
     def __init__(self) -> None:
-        self.addresses: set[str] = set()
+        self.bridges: dict[str, DiscoveredBridge] = {}
         self.found = threading.Event()
 
     def add_service(self, zc: Zeroconf, type_: str, name: str) -> None:
         info = zc.get_service_info(type_, name)
         if info is not None:
-            self.addresses.update(
+            addresses = sorted(
                 address
                 for address in info.parsed_addresses()
                 if isinstance(ipaddress.ip_address(address), ipaddress.IPv4Address)
             )
-            self.found.set()
+            raw_bridge_id = info.properties.get(b"bridgeid")
+            if addresses and raw_bridge_id is not None:
+                bridge_id = raw_bridge_id.decode("ascii", errors="ignore").lower()
+                raw_model_id = info.properties.get(b"modelid")
+                model_id = (
+                    raw_model_id.decode("ascii", errors="ignore")
+                    if raw_model_id is not None
+                    else None
+                )
+                self.bridges[bridge_id] = DiscoveredBridge(
+                    bridge_id=bridge_id,
+                    address=addresses[0],
+                    model_id=model_id or None,
+                    service_name=name.removesuffix("._hue._tcp.local."),
+                )
+                self.found.set()
 
     def update_service(self, zc: Zeroconf, type_: str, name: str) -> None:
         self.add_service(zc, type_, name)
@@ -160,27 +183,44 @@ class _HueListener(ServiceListener):
         return None
 
 
-def discover_bridge(timeout_seconds: float = 3.0) -> str:
+def discover_bridges(timeout_seconds: float = 3.0) -> tuple[DiscoveredBridge, ...]:
     listener = _HueListener()
     zeroconf = Zeroconf()
     try:
         ServiceBrowser(zeroconf, "_hue._tcp.local.", listener)
-        listener.found.wait(timeout_seconds)
+        if listener.found.wait(timeout_seconds):
+            threading.Event().wait(min(0.5, timeout_seconds))
     except (OSError, NotImplementedError) as exc:
         raise HarmonizeError(f"Hue mDNS discovery failed: {exc}") from exc
     finally:
         zeroconf.close()
-    addresses = sorted(listener.addresses)
-    if not addresses:
+    return tuple(
+        sorted(listener.bridges.values(), key=lambda bridge: bridge.bridge_id)
+    )
+
+
+def discover_bridge(
+    timeout_seconds: float = 3.0, *, bridge_id: str | None = None
+) -> str:
+    bridges = discover_bridges(timeout_seconds)
+    if bridge_id is not None:
+        normalized = bridge_id.strip().lower()
+        matches = [bridge for bridge in bridges if bridge.bridge_id == normalized]
+        if not matches:
+            raise HarmonizeError(
+                f"Hue bridge {bridge_id} was not found by local mDNS"
+            )
+        return matches[0].address
+    if not bridges:
         raise HarmonizeError(
             "No IPv4 Hue bridge address found by mDNS; "
-            "set hue.bridge_ip in harmonize.toml"
+            "set hue.bridge_ip in harmonize.toml or run setup_harmonize.py"
         )
-    if len(addresses) > 1:
+    if len(bridges) > 1:
         raise HarmonizeError(
-            "Multiple Hue bridges found by mDNS; set hue.bridge_ip explicitly"
+            "Multiple Hue bridges found by mDNS; set hue.bridge_id or hue.bridge_ip"
         )
-    return addresses[0]
+    return bridges[0].address
 
 
 class HueBridge:

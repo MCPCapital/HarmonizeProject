@@ -23,6 +23,7 @@ class ConfigTests(unittest.TestCase):
         example = Path(__file__).parents[1] / "harmonize.example.toml"
         config = load_config(example, unattended=True)
         self.assertEqual(config.hue.entertainment_area, "TV area")
+        self.assertIsNone(config.hue.bridge_id)
         self.assertEqual(config.capture.backend, "gstreamer")
         self.assertEqual(config.control.provider, "local")
         self.assertEqual(config.ambilight.color_processing_mode, "legacy_hsv")
@@ -75,6 +76,22 @@ class ConfigTests(unittest.TestCase):
             '[hue]\nentertainment_area = "TV area"\npassword = "no"\n'
         )
         with self.assertRaisesRegex(ConfigError, "hue.password"):
+            load_config(path, unattended=True)
+
+    def test_bridge_id_is_validated_and_normalized(self):
+        path = self.write_config(
+            '[hue]\nentertainment_area = "TV area"\n'
+            'bridge_id = "ECB5FAFFFEB0BD37"\n'
+        )
+        config = load_config(path, unattended=True)
+        self.assertEqual(config.hue.bridge_id, "ecb5fafffeb0bd37")
+
+    def test_invalid_bridge_id_is_rejected(self):
+        path = self.write_config(
+            '[hue]\nentertainment_area = "TV area"\n'
+            'bridge_id = "not-a-bridge"\n'
+        )
+        with self.assertRaisesRegex(ConfigError, "16 hexadecimal"):
             load_config(path, unattended=True)
 
     def test_invalid_values_are_rejected(self):

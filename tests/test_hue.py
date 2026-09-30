@@ -1,8 +1,11 @@
 import unittest
+from unittest.mock import patch
 
 from harmonize_core.errors import HarmonizeError
 from harmonize_core.hue import (
+    DiscoveredBridge,
     HueBridge,
+    discover_bridge,
     resolve_area_name,
     resolve_group_id,
     select_area_interactively,
@@ -69,6 +72,32 @@ class HueResolutionTests(unittest.TestCase):
         )
         self.assertEqual(area.name, "Desk")
         self.assertEqual(len(prompts), 1)
+
+
+class HueDiscoveryTests(unittest.TestCase):
+    @patch("harmonize_core.hue.discover_bridges")
+    def test_saved_bridge_id_selects_its_current_address(self, discover):
+        discover.return_value = (
+            DiscoveredBridge("1111111111111111", "192.0.2.1", "BSB002", "One"),
+            DiscoveredBridge("2222222222222222", "192.0.2.2", "BSB002", "Two"),
+        )
+        self.assertEqual(
+            discover_bridge(bridge_id="2222222222222222"), "192.0.2.2"
+        )
+
+    @patch("harmonize_core.hue.discover_bridges")
+    def test_multiple_bridges_require_a_stable_id_or_ip(self, discover):
+        discover.return_value = (
+            DiscoveredBridge("1111111111111111", "192.0.2.1", None, "One"),
+            DiscoveredBridge("2222222222222222", "192.0.2.2", None, "Two"),
+        )
+        with self.assertRaisesRegex(HarmonizeError, "Multiple Hue bridges"):
+            discover_bridge()
+
+    @patch("harmonize_core.hue.discover_bridges", return_value=())
+    def test_missing_saved_bridge_id_is_actionable(self, discover):
+        with self.assertRaisesRegex(HarmonizeError, "was not found"):
+            discover_bridge(bridge_id="2222222222222222")
 
 
 class FakeResponse:
