@@ -326,38 +326,54 @@ Name the area **TV area** to use the accepted defaults. Harmonize resolves the
 configured name exactly and refuses missing or ambiguous matches before
 starting Entertainment streaming.
 
-### 7. Register safely and create client.json
+### 7. Run the guided Hue setup
 
 Harmonize needs a Hue application username and client key for Entertainment
 DTLS. client.json is a secret: it is ignored by Git, must never be pasted into
 issues or logs, and must be mode 0600. Reuse an existing compatible file when
 available.
 
-First-time pairing is an explicit setup action; normal application startup
-never registers implicitly. The pairing tool discovers a single bridge on the
-local network through Hue mDNS (`_hue._tcp.local.`), prompts for the bridge link
-button, and creates `client.json` without printing its credential values:
+The standalone setup wizard discovers Hue Bridges locally through mDNS,
+offers a numbered choice when more than one is present, pairs only when
+`client.json` is absent, lists the selected bridge's Entertainment areas, and
+creates or updates `harmonize.toml`. It saves the bridge's stable ID so normal
+startup can rediscover that same bridge even when DHCP changes its IP address.
 
 ~~~console
 cd /home/pi/HarmonizeProject
-/home/pi/harmonize_env/bin/python tools/register_hue.py
+/home/pi/harmonize_env/bin/python setup_harmonize.py
 ~~~
 
-If local discovery is unavailable, `-i` is the explicit manual bridge-IP
-override/fallback:
+Press the selected bridge's link button when prompted. The wizard creates
+credentials with mode 0600 and never prints their values. Existing credentials
+are reused, and an existing configuration is not changed without confirmation.
+
+If local discovery is unavailable, `-i` remains the explicit manual bridge-IP
+fallback. `--area` can select a known exact area name without the menu:
 
 ~~~console
-/home/pi/harmonize_env/bin/python tools/register_hue.py -i 192.0.2.20
+/home/pi/harmonize_env/bin/python setup_harmonize.py \
+  -i 192.0.2.20 --area "TV area"
 ~~~
 
-Pairing uses no cloud discovery. If multiple bridges are found, specify the
-intended bridge with `-i`. If `client.json` already exists, the tool refuses to
-contact the bridge or overwrite the file. Back it up securely or remove it only
-if you intentionally want to register a new Hue application.
+Setup uses no cloud discovery, and normal application startup never registers
+implicitly. The lower-level `tools/register_hue.py` remains available for
+credential-only maintenance.
+
+Rerun `setup_harmonize.py` to change the Entertainment area on the same bridge;
+it reuses `client.json` and asks before updating an existing configuration. To
+change bridges, select the new stable ID (shown by the wizard) and provide a new
+unused credential path so the prior bridge credentials are preserved:
+
+~~~console
+/home/pi/harmonize_env/bin/python setup_harmonize.py \
+  -b 001788fffe123456 --credentials client-new-bridge.json
+~~~
 
 ### 8. Configure and validate Harmonize
 
-Copy the non-secret example and review every section:
+The setup wizard creates `harmonize.toml` from the non-secret example. Review
+every section. For manual configuration instead, copy it yourself:
 
 ~~~console
 cp harmonize.example.toml harmonize.toml
@@ -368,6 +384,8 @@ Important settings are:
 
 - hue.entertainment_area: exact, case-sensitive area name; default TV area.
 - hue.credentials_file: path to the protected client.json.
+- Optional hue.bridge_id: stable mDNS identity used when `hue.bridge_ip` is
+  unset, allowing selection among bridges even when DHCP changes an IP address.
 - Optional hue.bridge_ip: useful when discovery is unreliable.
 - capture.device_index, stable capture.device_path, capture.backend, or
   capture.stream_source (a path/URL). A device path and stream source are
@@ -397,10 +415,10 @@ The first command does not contact the bridge. The second contacts Hue only to
 confirm that exactly one named Entertainment area exists; it does not start
 streaming.
 
-At normal startup, Harmonize also discovers the bridge locally by mDNS unless
-`hue.bridge_ip` is configured or the legacy `-i` command-line option supplies an
-explicit override. It does not use Hue cloud discovery and does not register a
-new application implicitly.
+At normal startup, Harmonize discovers the configured `hue.bridge_id` locally
+by mDNS unless `hue.bridge_ip` is configured or the legacy `-i` command-line
+option supplies an explicit override. It does not use Hue cloud discovery and
+does not register a new application implicitly.
 
 ### 9. Test end to end in the foreground
 

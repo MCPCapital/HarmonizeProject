@@ -39,7 +39,9 @@ def main() -> int:
         credentials = load_credentials(
             config.hue.credentials_file, unattended=True
         )
-        bridge_ip = args.bridge_ip or config.hue.bridge_ip or discover_bridge()
+        bridge_ip = args.bridge_ip or config.hue.bridge_ip or discover_bridge(
+            bridge_id=config.hue.bridge_id
+        )
         bridge = HueBridge(bridge_ip, credentials.username)
         resources = bridge.list_entertainment_resources()
         area_name = config.hue.entertainment_area
