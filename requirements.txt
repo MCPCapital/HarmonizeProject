@@ -4,4 +4,4 @@
 numpy==1.26.4
 requests==2.32.3
 termcolor==2.5.0
-zeroconf==0.136.0
+zeroconf==0.149.16
