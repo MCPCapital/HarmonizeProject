@@ -14,13 +14,32 @@ class HTTPToolTests(unittest.TestCase):
         def sender(socket_path, command):
             sent.append((socket_path, command))
             if command == "STATUS":
-                return {"ok": True, "status": {"actual_state": "IDLE"}}
+                return {
+                    "ok": True,
+                    "status": {
+                        "actual_state": "IDLE",
+                        "performance": {
+                            "color_processing_mode": "direct_rgb",
+                            "update_interval_seconds": 0.033,
+                            "brightness_adjustment": 0,
+                        },
+                    },
+                }
             return {"ok": True, "command": command}
 
+        performance = {
+            "color_processing_mode": "direct_rgb",
+            "update_interval_seconds": 0.033,
+            "brightness_adjustment": 0,
+        }
         expectations = (
             ("/?harmonize=on", "ON", {"command": "ON", "state": "accepted"}),
             ("/?harmonize=off", "OFF", {"command": "OFF", "state": "accepted"}),
-            ("/?harmonize=status", "STATUS", {"state": "IDLE"}),
+            (
+                "/?harmonize=status",
+                "STATUS",
+                {"state": "IDLE", "performance": performance},
+            ),
         )
         for target, command, expected in expectations:
             with self.subTest(target=target):
@@ -74,6 +93,19 @@ class HTTPToolTests(unittest.TestCase):
             "/?harmonize=status",
             self.socket_path,
             sender=lambda socket_path, command: {"ok": True, "status": {}},
+        )
+        self.assertEqual(status, 502)
+
+        status, _ = dispatch(
+            "/?harmonize=status",
+            self.socket_path,
+            sender=lambda socket_path, command: {
+                "ok": True,
+                "status": {
+                    "actual_state": "IDLE",
+                    "performance": {"color_processing_mode": "direct_rgb"},
+                },
+            },
         )
         self.assertEqual(status, 502)
 

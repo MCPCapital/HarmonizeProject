@@ -54,6 +54,7 @@ class FrameAnalyzer:
     brightness_adjustment: int
     breadth: float
     single_light: bool
+    color_processing_mode: str = "legacy_hsv"
 
     def __post_init__(self) -> None:
         self._bounds = sample_bounds(
@@ -66,8 +67,11 @@ class FrameAnalyzer:
             blue, green, red, _ = cv2.mean(bgr_frame)
             return {1: (int(red), int(green), int(blue))}
 
-        adjusted = adjust_brightness(bgr_frame, self.brightness_adjustment)
-        rgb_frame = cv2.cvtColor(adjusted, cv2.COLOR_BGR2RGB)
+        if self.color_processing_mode == "direct_rgb":
+            rgb_frame = cv2.cvtColor(bgr_frame, cv2.COLOR_BGR2RGB)
+        else:
+            adjusted = adjust_brightness(bgr_frame, self.brightness_adjustment)
+            rgb_frame = cv2.cvtColor(adjusted, cv2.COLOR_BGR2RGB)
         colors: dict[int, Rgb] = {}
         for channel_id, (top, bottom, left, right) in self._bounds.items():
             area = rgb_frame[top:bottom, left:right, :]

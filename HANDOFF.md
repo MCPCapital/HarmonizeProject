@@ -1,101 +1,117 @@
 # Harmonize project handoff
 
-Updated 2026-09-13 after acceptance of Milestone 8. `PROJECT.md`, milestone
-documents, tests, and Git history remain the authoritative specification.
+Updated 2026-09-15 after acceptance and closeout of Milestone 9.
+`PROJECT.md`, milestone documents, tests, and Git history remain the
+authoritative specification.
 
 ## Accepted state
 
-- Milestones 0 through 8 are complete and accepted. Do not reopen them without
+- Milestones 0 through 9 are complete and accepted. Do not reopen them without
   an explicit owner request.
-- Accepted Milestone 7 implementation: `9842b8c` (`Deploy Harmonize as a
-  systemd appliance`).
-- All 97 offline tests and `systemd-analyze verify` passed for Milestone 7.
-- Milestone 7 rollback tooling and instructions exist. The owner accepted the
-  milestone with the uninstall/reinstall execution intentionally skipped.
-- Milestone 8 was completed and accepted on `m8-http-interface` using
-  the revised trusted-LAN HTTP requirements. The adapter accepts only the
-  exact fixed ON/OFF/STATUS request targets on TCP port 8765.
-- 11 focused Milestone 8 tests and the four existing local-control tests
-  passed; Bash syntax and systemd unit verification also passed.
-- Both services finished installed, enabled, active, and running with zero
-  restarts. Final HTTP state was IDLE, both `TV area` lights were off, and a
-  read-only Hue query reported the exact two-channel area inactive.
+- Milestone 9 was completed on `m9-ambilight-quality`. The configurable
+  performance implementation is commit `fff9ba1`; the closeout commit is the
+  branch head recorded after this handoff update.
+- Commit `7cac8ed` moved Hue status queries off the streaming-critical packet
+  path while preserving single-flight session-loss detection and recovery.
+- The complete offline suite passed 129 tests before deployment. The closeout
+  is documentation-only, so the suite was not rerun.
+- `master` has not been merged or changed.
+
+## Public behavior and configuration
+
+The backward-compatible public defaults remain:
+
+- `ambilight.color_processing_mode = "legacy_hsv"`
+- `ambilight.update_interval_seconds = 0.050`
+
+`legacy_hsv` preserves the released v3.0.0 BGR-to-HSV-to-BGR output. The
+`direct_rgb` mode is an explicit performance opt-in and is valid only when
+`brightness_adjustment = 0`. The generic example retains the public defaults.
+
+Local STATUS includes a non-secret `performance` object. Trusted-LAN HTTP
+`/?harmonize=status` returns only current state plus
+`color_processing_mode`, `update_interval_seconds`, and
+`brightness_adjustment`; it does not expose credentials, bridge details,
+filesystem paths, or other internal configuration.
 
 ## Installed appliance state
 
-At handoff, `harmonize.service` is loaded, enabled, active, and running. It
-starts ready in IDLE and waits for an explicit ON request. The unit and its
-operator/rollback instructions are in `deploy/harmonize.service` and
-`docs/milestone-7-systemd.md`.
+The owner Pi intentionally remains deployed from commit `fff9ba1` with:
 
-`harmonize-http.service` is also installed, enabled, active, and listening on
-all IPv4 interfaces on TCP port 8765. It runs under the same locked identity
-but its systemd sandbox hides configuration, credentials, and persistent
-state. Operator and rollback instructions are in `docs/milestone-8-http.md`.
+- `color_processing_mode = "direct_rgb"`
+- `update_interval_seconds = 0.033`
+- `brightness_adjustment = 0`
 
-The service runs as the locked account `harmonize` (UID 997, primary GID 985,
-shell `/usr/sbin/nologin`) with only the supplementary `video` group. Relevant
-paths are:
+Do not replace those personal settings with the public defaults. The evening
+soak looked good, with no noticeable color, brightness, or light-behavior
+problems. At closeout both `harmonize.service` and `harmonize-http.service`
+were active/running with zero restarts. Runtime STATUS reported the settings
+above; the current lifecycle state was IDLE after the owner observation.
 
-- root-owned application and virtual environment under `/opt/harmonize`
-- configuration under `/etc/harmonize` (`0750 root:harmonize`)
-- private runtime directory `/run/harmonize` (`0700 harmonize:harmonize`)
-- private state directory `/var/lib/harmonize` (`0700 harmonize:harmonize`)
-- stable WARKKY capture path configured under `/dev/v4l/by-id`
+Rollback snapshots from the deployment remain at
+`/opt/harmonize/app.pre-fff9ba1` and
+`/etc/harmonize/harmonize.toml.pre-fff9ba1`. Configuration-only rollback of
+the performance options is `legacy_hsv` plus 0.050 seconds followed by a core
+service restart.
 
-The local control provider accepts `ON`, `OFF`, and `STATUS` through
-`/run/harmonize/harmonize.sock`. The socket is owner-only (`0600`) inside the
-private runtime directory. `tools/harmonize_control.py` is the existing client.
-The desired-state/provider boundary remains independent of any automation
-system. Explicit OFF and service stop turn every light in exactly `TV area`
-off; exceptional cleanup may restore pre-session state as documented.
+The services run as the locked `harmonize` identity. Application and virtual
+environment files are under `/opt/harmonize`, configuration is under
+`/etc/harmonize`, private runtime state is under `/run/harmonize`, and
+persistent light state is under `/var/lib/harmonize`. The stable capture path
+remains the WARRKY `/dev/v4l/by-id` device. The trusted-LAN HTTP adapter still
+listens on TCP port 8765 and maps only exact ON, OFF, and STATUS requests to the
+owner-only Unix socket.
 
-## Milestone 8 boundary
+## Milestone 9 conclusions
 
-Milestone 8 is **Trusted-LAN HTTP Control**, defined in `PROJECT.md` by the
-owner's revised requirements.
+- Instrumentation established the 640x480 YUYV, approximately 30 FPS capture
+  baseline and measured frame age, analysis cost, update cadence, and packet
+  gaps without per-frame logging.
+- Moving the ten-second Hue HTTPS status query to an asynchronous single-flight
+  monitor removed the recurring packet-gap tail. Recovery semantics remain
+  intact and slow status requests no longer block packet sends.
+- The 33 ms pacing trial increased effective update rate and remained stable.
+  It is configurable and accepted for this Pi, while 50 ms remains the public
+  compatibility default.
+- Native V4L2 and OpenCV timestamp measurements found no meaningful
+  steady-state stale-frame queue. Reducing the effective four buffers offered
+  no normal-path benefit, so capture behavior was left unchanged.
+- The brightness-zero `direct_rgb` path materially reduces analysis time but is
+  not byte-for-byte output-equivalent to the legacy HSV round trip. It remains
+  an explicit opt-in restricted to zero brightness adjustment. Controlled live
+  viewing and the evening soak found no noticeable degradation.
+- Smoothing, gamma, saturation, black-bar handling, dark-scene logic,
+  scene-change processing, and other visual redesigns were not pursued merely
+  to extend the milestone. They remain deferred unless future evidence and a
+  separate owner request justify them.
 
-The adapter is a separate small HTTP service on IPv4 TCP port 8765. It accepts
-only exact GET targets for `/?harmonize=on`, `/?harmonize=off`, and
-`/?harmonize=status`; all missing, unsupported, duplicate, or extra request
-input is rejected.
-
-Fixed request values map directly to the existing owner-only Unix-socket
-client. Do not construct shell commands from request input, add another
-desired-state provider, or expose configuration, credentials, or persistent
-state.
-
-The separate systemd unit runs as `harmonize` so it can reach the private
-socket. Its filesystem sandbox hides `/etc/harmonize` and
-`/var/lib/harmonize`. Authentication and TLS are intentionally absent; this
-adapter is explicitly for the owner's trusted LAN.
-
-Live validation confirmed local and external STATUS, ON to STREAMING with both
-`TV area` lights following video, and OFF to IDLE with both lights powered
-off. The final read-only Hue query reported Entertainment inactive and sent no
-action request. Setup, diagnostics, failure behavior, results, and rollback
-are documented in `docs/milestone-8-http.md`.
+Detailed measurements, experiment history, defaults, risks, and rollback are
+in `docs/milestone-9-optimization.md`. Runtime configuration and HTTP status
+reporting are documented in `README.md`, `harmonize.example.toml`, and
+`docs/milestone-8-http.md`.
 
 ## Safety and scope
 
-- `client.json` contains Hue credentials. Never display, log, copy into
-  diagnostics, or commit it. The repository file is ignored and mode `0600`;
-  the installed credential is also private. Validate metadata only.
+- `client.json` contains Hue credentials. Never display, log, diagnose, or
+  commit its contents.
 - Resolve and control only the configured Entertainment area named exactly
-  `TV area`. Preserve bounded cleanup and leave Entertainment inactive after
-  every live test.
+  `TV area`; preserve bounded cleanup and explicit OFF behavior.
 - Do not reset, clean, stash, discard, or overwrite user work during takeover.
-- Docker, AirPrint, and host CUPS are out of scope. Do not inspect, test,
-  validate, modify, or report on them for Milestone 8.
-- Do not begin Milestone 9 visual-quality work.
+- Docker, AirPrint, and host CUPS remain outside routine Harmonize work unless
+  a separately authorized milestone explicitly requires their validation.
+- Do not resume Milestone 9 optimization without an explicit owner request.
 
 ## What the next agent must do first
 
-Before making any change, read this file, `PROJECT.md`,
-`docs/milestone-8-http.md`, and the relevant tests and Git history. Verify
-the branch and worktree, and confirm both services without exposing
-credentials.
+Verify the branch and clean worktree, read this file, `PROJECT.md`, and the
+relevant milestone documents, then confirm both services and STATUS without
+exposing credentials. Milestone 9 is complete; the roadmap proceeds to the
+separately authorized Milestone 10 boundary. Do not merge this topic branch to
+`master` without explicit review and authorization.
 
-Milestone 8 is complete, accepted, and live-validated on
-`m8-http-interface`. Do not reopen it without an explicit owner request. Only
-begin Milestone 9 after separate explicit owner authorization.
+### Status
+
+Milestone 9 is complete and accepted on `m9-ambilight-quality` on 2026-09-15.
+The public defaults remain legacy HSV and 50 ms. The owner Pi retains direct
+RGB, 33 ms, and zero brightness adjustment. No additional visual-processing
+optimization is pending as part of this milestone.

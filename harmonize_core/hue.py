@@ -200,6 +200,17 @@ class HueBridge:
         self._timeout = timeout_seconds
         self._headers = {"hue-application-key": username}
 
+    def new_session(self) -> HueBridge:
+        """Return an equivalent bridge client with independent HTTP state."""
+        return HueBridge(
+            self.bridge_ip,
+            self.username,
+            timeout_seconds=self._timeout,
+        )
+
+    def close(self) -> None:
+        self._session.close()
+
     def _request(
         self, method: str, path: str, *, json_body: dict[str, Any] | None = None
     ) -> requests.Response:

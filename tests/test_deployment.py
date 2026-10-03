@@ -21,6 +21,10 @@ class DeploymentTests(unittest.TestCase):
             ),
         )
         self.assertEqual(config.capture.backend, "v4l2")
+        self.assertEqual(config.ambilight.color_processing_mode, "direct_rgb")
+        self.assertEqual(
+            config.ambilight.update_interval_seconds, 0.033
+        )
         self.assertEqual(
             config.control.socket_path,
             Path("/run/harmonize/harmonize.sock"),

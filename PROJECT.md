@@ -567,23 +567,32 @@ Quality work should be measurable and reversible, and must not destabilize lifec
 
 ### Planned work
 
-- [ ] Capture repeatable reference clips and baseline latency, CPU use, update rate, and representative color output.
-- [ ] Evaluate temporal color smoothing.
-- [ ] Correct and make brightness limiting behavior explicit.
-- [ ] Evaluate saturation and gamma correction.
-- [ ] Evaluate black-bar detection and improved edge sampling regions.
-- [ ] Define dark-scene behavior.
-- [ ] Evaluate scene-change response.
-- [ ] Make update rate configurable within Hue bridge limits.
-- [ ] Introduce each improvement separately with objective comparisons and an off switch.
+- [x] Instrument capture timing, frame age, analysis cost, update cadence, and
+  long packet gaps without per-frame logging.
+- [x] Compare the released 50 ms pacing with a controlled 33 ms trial and an
+  extended subjective observation.
+- [x] Remove the synchronous Hue status query from the packet-critical path
+  while preserving bridge-session-loss detection and recovery semantics.
+- [x] Measure current V4L2 buffer behavior and determine whether fewer buffers
+  would reduce steady-state stale-frame latency.
+- [x] Characterize the brightness-zero direct-RGB path objectively and through
+  controlled live viewing before retaining it as an explicit opt-in.
+- [x] Make update pacing and color processing configurable while retaining the
+  released behavior as the public default and rollback.
+- [x] Defer smoothing, gamma, saturation, black-bar, dark-scene, scene-change,
+  and other visual redesigns that were not justified by this latency-focused
+  milestone.
 
 ### Acceptance criteria
 
-- [ ] Appliance lifecycle tests continue to pass with every enabled enhancement.
-- [ ] Each accepted option has documented defaults, bounds, performance cost, and rollback.
-- [ ] Measured latency and CPU use remain within agreed Pi 5 limits.
-- [ ] Visual changes are compared against the preserved baseline.
-- [ ] Enhancements can be disabled independently.
+- [x] Appliance lifecycle tests continue to pass with every enabled enhancement.
+- [x] Each accepted option has documented defaults, constraints, performance
+  cost, and rollback.
+- [x] Measured timing and CPU use remain within the observed Pi 5 headroom.
+- [x] The direct-RGB visual change was compared against the preserved baseline
+  and completed an owner-observed evening soak without noticeable degradation.
+- [x] The public defaults independently retain legacy HSV processing and 50 ms
+  pacing; the Pi-specific profile explicitly selects the accepted options.
 
 ### Risks/unknowns
 
@@ -594,7 +603,22 @@ Quality work should be measurable and reversible, and must not destabilize lifec
 
 ### Status
 
-Not started.
+Complete and accepted on `m9-ambilight-quality` on 2026-09-15. Commit
+`7cac8ed` moved the ten-second Hue status query off the packet-critical path and
+removed its recurring measured gap without changing recovery policy. Native
+V4L2/OpenCV timestamp measurements found no meaningful steady-state stale-frame
+queue, so the effective four-buffer capture behavior remains unchanged. The
+33 ms option increased measured update cadence and remained stable. The
+`direct_rgb` path materially reduced analysis cost but is not byte-equivalent
+to the released HSV round trip, so it is an explicit zero-brightness opt-in.
+
+The public defaults remain `legacy_hsv` and 0.050 seconds. The owner Pi is
+intentionally deployed with `direct_rgb`, 0.033 seconds, and
+`brightness_adjustment = 0`; its evening soak looked good with no noticeable
+color, brightness, or light-behavior problems. Runtime STATUS reports these
+three active non-secret performance values. Additional visual-processing
+experiments are deferred rather than extending the milestone without evidence.
+See `docs/milestone-9-optimization.md` for measurements and decisions.
 
 ## Milestone 10 — Final Validation and Documentation
 

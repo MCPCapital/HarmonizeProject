@@ -49,10 +49,31 @@ def dispatch(
 
     if command == "STATUS":
         status = response.get("status")
-        state = status.get("actual_state") if isinstance(status, dict) else None
-        if not isinstance(state, str):
+        if not isinstance(status, dict):
             return 502, {"error": "Harmonize returned an invalid status"}
-        return 200, {"state": state}
+        state = status.get("actual_state")
+        performance = status.get("performance")
+        if not isinstance(state, str) or not isinstance(performance, dict):
+            return 502, {"error": "Harmonize returned an invalid status"}
+        mode = performance.get("color_processing_mode")
+        interval = performance.get("update_interval_seconds")
+        brightness = performance.get("brightness_adjustment")
+        valid_interval = (
+            isinstance(interval, (int, float)) and not isinstance(interval, bool)
+        )
+        valid_brightness = isinstance(brightness, int) and not isinstance(
+            brightness, bool
+        )
+        if not isinstance(mode, str) or not valid_interval or not valid_brightness:
+            return 502, {"error": "Harmonize returned an invalid status"}
+        return 200, {
+            "state": state,
+            "performance": {
+                "color_processing_mode": mode,
+                "update_interval_seconds": interval,
+                "brightness_adjustment": brightness,
+            },
+        }
 
     return 200, {"command": command, "state": "accepted"}
 

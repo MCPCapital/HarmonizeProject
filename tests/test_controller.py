@@ -1,10 +1,16 @@
 from dataclasses import replace
+import threading
 import time
 import unittest
 
 import numpy as np
 
-from harmonize_core.controller import HarmonizeController, LifecycleState
+from harmonize_core.controller import (
+    HarmonizeController,
+    LifecycleState,
+    _HueStatusMonitor,
+    _StreamMetrics,
+)
 from harmonize_core.errors import HarmonizeError
 from harmonize_core.hue import Channel, EntertainmentArea
 
@@ -50,6 +56,31 @@ class FakeHue:
         self.actions.append(("stop", area.name))
         if self.fail_stop:
             raise HarmonizeError("injected stop failure")
+
+
+class FakeStatusHue:
+    def __init__(self, status="active", *, error=None, blocking=False):
+        self.status = status
+        self.error = error
+        self.blocking = blocking
+        self.started = threading.Event()
+        self.release = threading.Event()
+        self.calls = 0
+        self.closed = False
+
+    def resolve_name(self, name):
+        self.calls += 1
+        self.started.set()
+        if self.blocking:
+            self.release.wait(1.0)
+        if self.error is not None:
+            raise self.error
+        if name != AREA.name:
+            raise HarmonizeError("unexpected area")
+        return replace(AREA, status=self.status)
+
+    def close(self):
+        self.closed = True
 
 
 class FakeCapture:
@@ -152,6 +183,72 @@ def controller(hue, capture):
     )
 
 
+class HueStatusMonitorTests(unittest.TestCase):
+    def test_slow_query_is_single_flight_and_nonblocking(self):
+        bridge = FakeStatusHue(blocking=True)
+        monitor = _HueStatusMonitor(lambda: bridge, AREA.name)
+        monitor.start()
+        started_at = time.monotonic()
+        self.assertTrue(monitor.request(4))
+        self.assertLess(time.monotonic() - started_at, 0.05)
+        self.assertTrue(bridge.started.wait(1.0))
+        self.assertFalse(monitor.request(4))
+        self.assertIsNone(monitor.poll(4))
+        bridge.release.set()
+
+        deadline = time.monotonic() + 1.0
+        result = None
+        while result is None and time.monotonic() < deadline:
+            result = monitor.poll(4)
+            time.sleep(0.001)
+        self.assertIsNotNone(result)
+        self.assertIsNone(result.error)
+        self.assertEqual(result.area.status, "active")
+        self.assertEqual(bridge.calls, 1)
+        self.assertTrue(monitor.stop(1.0))
+        self.assertTrue(bridge.closed)
+
+    def test_stop_is_bounded_during_inflight_query(self):
+        bridge = FakeStatusHue(blocking=True)
+        monitor = _HueStatusMonitor(lambda: bridge, AREA.name)
+        monitor.start()
+        self.assertTrue(monitor.request(1))
+        self.assertTrue(bridge.started.wait(1.0))
+        started_at = time.monotonic()
+        self.assertFalse(monitor.stop(0.01))
+        self.assertLess(time.monotonic() - started_at, 0.1)
+        bridge.release.set()
+        self.assertTrue(monitor.stop(1.0))
+        self.assertTrue(bridge.closed)
+
+    def test_discards_result_from_stale_generation(self):
+        bridge = FakeStatusHue()
+        monitor = _HueStatusMonitor(lambda: bridge, AREA.name)
+        monitor.start()
+        self.assertTrue(monitor.request(1))
+        self.assertTrue(bridge.started.wait(1.0))
+        deadline = time.monotonic() + 1.0
+        while monitor._result is None and time.monotonic() < deadline:
+            time.sleep(0.001)
+        self.assertIsNone(monitor.poll(2))
+        self.assertTrue(monitor.stop(1.0))
+
+    def test_converts_unexpected_worker_error(self):
+        bridge = FakeStatusHue(error=RuntimeError("broken"))
+        monitor = _HueStatusMonitor(lambda: bridge, AREA.name)
+        monitor.start()
+        self.assertTrue(monitor.request(1))
+        self.assertTrue(bridge.started.wait(1.0))
+        deadline = time.monotonic() + 1.0
+        result = None
+        while result is None and time.monotonic() < deadline:
+            result = monitor.poll(1)
+            time.sleep(0.001)
+        self.assertIsInstance(result.error, HarmonizeError)
+        self.assertIn("broken", str(result.error))
+        self.assertTrue(monitor.stop(1.0))
+
+
 class ControllerTests(unittest.TestCase):
     def setUp(self):
         FakeTransport.instances = []
@@ -179,6 +276,84 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(snapshot["state"], "IDLE")
         self.assertFalse(snapshot["alive"])
         self.assertFalse(snapshot["ready"])
+
+    def test_slow_status_query_does_not_pause_packet_sends(self):
+        hue = FakeHue()
+        capture = FakeCapture()
+        status_hue = FakeStatusHue(blocking=True)
+        subject = controller(hue, capture)
+        subject.hue_status_interval_seconds = 0.001
+        subject.hue_status_bridge_factory = lambda: status_hue
+        subject.start_background()
+        self.assertTrue(subject.ready.wait(1.0))
+        self.assertTrue(status_hue.started.wait(1.0))
+        packet_count = len(FakeTransport.instances[0].packets)
+        time.sleep(0.03)
+        self.assertGreater(
+            len(FakeTransport.instances[0].packets),
+            packet_count + 2,
+        )
+        status_hue.release.set()
+        subject.request_stop()
+        self.assertTrue(subject.join(1.0))
+        self.assertEqual(subject.state, LifecycleState.IDLE)
+        self.assertTrue(status_hue.closed)
+
+    def test_inactive_async_status_preserves_recovery(self):
+        hue = FakeHue()
+        capture = FakeCapture()
+        status_bridges = [FakeStatusHue("inactive"), FakeStatusHue("active")]
+        subject = controller(hue, capture)
+        subject.hue_status_interval_seconds = 0.001
+        subject.hue_status_bridge_factory = lambda: status_bridges.pop(0)
+        subject.transport_reconnect_attempts = 1
+        subject.start_background()
+        self.assertTrue(subject.ready.wait(1.0))
+        deadline = time.monotonic() + 1.0
+        while len(FakeTransport.instances) < 2:
+            if time.monotonic() >= deadline:
+                self.fail("inactive status did not trigger transport recovery")
+            time.sleep(0.001)
+        subject.request_stop()
+        self.assertTrue(subject.join(1.0))
+        self.assertEqual(subject.state, LifecycleState.IDLE)
+        self.assertIsNone(subject.error)
+        self.assertEqual(
+            hue.actions,
+            [
+                ("start", "TV area"),
+                ("stop", "TV area"),
+                ("start", "TV area"),
+                ("stop", "TV area"),
+            ],
+        )
+
+    def test_stream_metrics_summarize_without_changing_stream_values(self):
+        metrics = _StreamMetrics(0.05, 10.0)
+        metrics.record(
+            captured_at=10.010,
+            analysis_started_at=10.012,
+            analysis_duration=0.003,
+            packet_at=10.016,
+            replaced_frames=2,
+        )
+        metrics.record(
+            captured_at=10.060,
+            analysis_started_at=10.064,
+            analysis_duration=0.005,
+            packet_at=10.076,
+            replaced_frames=1,
+        )
+        snapshot = metrics.snapshot(
+            10.1, {"samples": 4, "mean_ms": 18.0}
+        )
+        self.assertEqual(snapshot["packets"], 2)
+        self.assertEqual(snapshot["effective_update_rate_hz"], 20.0)
+        self.assertEqual(snapshot["replaced_application_frames"], 3)
+        self.assertEqual(snapshot["frame_age_ms"]["mean"], 3.0)
+        self.assertEqual(snapshot["analysis_ms"]["mean"], 4.0)
+        self.assertEqual(snapshot["packet_interval_ms"]["mean"], 60.0)
+        self.assertEqual(snapshot["capture_interarrival_ms"]["samples"], 4)
 
     def test_capture_failure_does_not_start_hue(self):
         hue = FakeHue()

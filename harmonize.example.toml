@@ -26,9 +26,13 @@ recovery_initial_seconds = 1.0
 [ambilight]
 video_wait_seconds = 2.0
 brightness_adjustment = 0
+# legacy_hsv preserves released v3.0.0 output. direct_rgb is an explicit
+# performance option and is valid only when brightness_adjustment = 0.
+color_processing_mode = "legacy_hsv"
 auto_restart_seconds = 0.0
 single_light = false
 sample_breadth = 0.15
+# 0.05 is the legacy default; 0.033 is the accepted faster pacing option.
 update_interval_seconds = 0.05
 # Explicit OFF and daemon/service stop always turn every area light off.
 # This setting applies only to startup/runtime failure cleanup.

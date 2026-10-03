@@ -1,6 +1,9 @@
 import unittest
+from pathlib import Path
+from types import SimpleNamespace
+import tempfile
 
-from harmonize_core.cli import ShutdownCoordinator, build_parser
+from harmonize_core.cli import ShutdownCoordinator, _status_snapshot, build_parser, run
 
 
 class FakeController:
@@ -61,6 +64,42 @@ class CliTests(unittest.TestCase):
         coordinator.request("SIGINT")
         self.assertEqual(controller.reasons, ["SIGTERM"])
         self.assertEqual(coordinator.reason, "SIGTERM")
+
+    def test_status_snapshot_reports_only_safe_performance_fields(self):
+        class FakeSupervisor:
+            def snapshot(self):
+                return {"actual_state": "STREAMING"}
+
+        options = SimpleNamespace(
+            color_processing_mode="direct_rgb",
+            update_interval_seconds=0.033,
+            brightness_adjustment=0,
+        )
+        self.assertEqual(
+            _status_snapshot(FakeSupervisor(), options),
+            {
+                "actual_state": "STREAMING",
+                "performance": {
+                    "color_processing_mode": "direct_rgb",
+                    "update_interval_seconds": 0.033,
+                    "brightness_adjustment": 0,
+                },
+            },
+        )
+
+    def test_cli_brightness_override_cannot_bypass_direct_rgb_validation(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            config = Path(temporary) / "harmonize.toml"
+            config.write_text(
+                '[hue]\nentertainment_area = "TV area"\n'
+                '[ambilight]\nbrightness_adjustment = 0\n'
+                'color_processing_mode = "direct_rgb"\n',
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                run(["--config", str(config), "--light_brightness", "1"]),
+                2,
+            )
 
     def test_failure_injection_choices_are_explicit(self):
         args = build_parser().parse_args(

@@ -377,8 +377,13 @@ Important settings are:
 - capture.device_index, stable capture.device_path, capture.backend, or
   capture.stream_source (a path/URL). A device path and stream source are
   mutually exclusive.
-- The ambilight table controls brightness adjustment, sample breadth, update
-  interval, single-light optimization, restart timing, and exceptional cleanup.
+- `ambilight.color_processing_mode` defaults to `legacy_hsv`, preserving
+  v3.0.0 output. The `direct_rgb` performance mode is an explicit opt-in and
+  is valid only with `brightness_adjustment = 0`.
+- `ambilight.update_interval_seconds` defaults to the released 0.05-second
+  pacing. The measured faster option is `0.033` seconds.
+- The remaining ambilight settings control brightness adjustment, sample
+  breadth, single-light optimization, restart timing, and exceptional cleanup.
 - The reliability, control, light_state, and logging tables control timeouts,
   socket/state/health paths, recovery, and logging.
 
@@ -529,6 +534,14 @@ curl --fail-with-body 'http://192.0.2.10:8765/?harmonize=status'
 curl --fail-with-body 'http://192.0.2.10:8765/?harmonize=on'
 curl --fail-with-body 'http://192.0.2.10:8765/?harmonize=off'
 ~~~
+
+STATUS returns concise machine-readable state and the active non-secret
+performance configuration:
+
+~~~json
+{"state":"STREAMING","performance":{"color_processing_mode":"direct_rgb","update_interval_seconds":0.033,"brightness_adjustment":0}}
+~~~
+
 
 ON/OFF return acceptance immediately; poll STATUS until it reports a state of
 STREAMING or IDLE. Missing, duplicate, extra, or unsupported query input

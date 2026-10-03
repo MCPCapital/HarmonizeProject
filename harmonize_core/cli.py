@@ -41,6 +41,7 @@ class RuntimeOptions:
     capture_backend: str
     stream_source: str | None
     brightness_adjustment: int
+    color_processing_mode: str
     auto_restart_seconds: float
     single_light: bool
     sample_breadth: float
@@ -135,6 +136,7 @@ def _runtime_options(
             brightness_adjustment=(
                 30 if args.light_brightness is None else args.light_brightness
             ),
+            color_processing_mode="legacy_hsv",
             auto_restart_seconds=(
                 0.0 if args.auto_restart is None else args.auto_restart
             ),
@@ -177,6 +179,7 @@ def _runtime_options(
             if args.light_brightness is None
             else args.light_brightness
         ),
+        color_processing_mode=config.ambilight.color_processing_mode,
         auto_restart_seconds=(
             config.ambilight.auto_restart_seconds
             if args.auto_restart is None
@@ -208,6 +211,18 @@ def _write_health(
         reporter.write(supervisor.snapshot())
 
 
+def _status_snapshot(
+    supervisor: AmbilightSupervisor, options: RuntimeOptions
+) -> dict[str, object]:
+    snapshot = supervisor.snapshot()
+    snapshot["performance"] = {
+        "color_processing_mode": options.color_processing_mode,
+        "update_interval_seconds": options.update_interval_seconds,
+        "brightness_adjustment": options.brightness_adjustment,
+    }
+    return snapshot
+
+
 def run(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     hue = None
@@ -220,6 +235,11 @@ def run(argv: list[str] | None = None) -> int:
             raise ConfigError("--run-seconds must be greater than zero")
         config = _load_optional_config(args)
         options = _runtime_options(args, config)
+        if (
+            options.color_processing_mode == "direct_rgb"
+            and options.brightness_adjustment != 0
+        ):
+            raise ConfigError("direct_rgb requires effective brightness_adjustment = 0")
         credentials = load_credentials(
             options.credentials_file, unattended=True
         )
@@ -323,6 +343,7 @@ def run(argv: list[str] | None = None) -> int:
                 brightness_adjustment=options.brightness_adjustment,
                 sample_breadth=options.sample_breadth,
                 update_interval_seconds=options.update_interval_seconds,
+                color_processing_mode=options.color_processing_mode,
                 single_light=options.single_light,
                 auto_restart_seconds=options.auto_restart_seconds,
                 transport_reconnect_attempts=(
@@ -341,7 +362,7 @@ def run(argv: list[str] | None = None) -> int:
         supervisor_box: dict[str, AmbilightSupervisor] = {}
         provider = LocalCommandProvider(
             options.control.socket_path,
-            status=lambda: supervisor_box["supervisor"].snapshot(),
+            status=lambda: _status_snapshot(supervisor_box["supervisor"], options),
         )
         supervisor = AmbilightSupervisor(
             providers=[provider],
