@@ -10,6 +10,7 @@ from dataclasses import dataclass
 import json
 import math
 from pathlib import Path
+import re
 import stat
 import tomllib
 from typing import Any
@@ -23,6 +24,7 @@ class ConfigError(ValueError):
 class HueConfig:
     entertainment_area: str | None
     credentials_file: Path
+    bridge_id: str | None = None
     bridge_ip: str | None = None
 
 
@@ -113,7 +115,12 @@ _SECTIONS = {
     "reliability",
 }
 _KEYS = {
-    "hue": {"entertainment_area", "credentials_file", "bridge_ip"},
+    "hue": {
+        "entertainment_area",
+        "credentials_file",
+        "bridge_id",
+        "bridge_ip",
+    },
     "capture": {"device_index", "device_path", "backend", "stream_source"},
     "control": {
         "provider",
@@ -192,6 +199,17 @@ def _string(
     if value != value.strip():
         raise ConfigError(f"{key} must not begin or end with whitespace")
     return value
+
+
+def _bridge_id(table: dict[str, Any]) -> str | None:
+    value = _string(table, "bridge_id", optional=True)
+    if value is None:
+        return None
+    if re.fullmatch(r"[0-9A-Fa-f]{16}", value) is None:
+        raise ConfigError(
+            "bridge_id must contain exactly 16 hexadecimal characters"
+        )
+    return value.lower()
 
 
 def _number(
@@ -388,6 +406,7 @@ def load_config(path: str | Path, *, unattended: bool) -> HarmonizeConfig:
         hue=HueConfig(
             entertainment_area=area,
             credentials_file=credentials_path.resolve(),
+            bridge_id=_bridge_id(hue_values),
             bridge_ip=_string(hue_values, "bridge_ip", optional=True),
         ),
         capture=CaptureConfig(
@@ -539,7 +558,7 @@ def load_credentials(path: str | Path, *, unattended: bool) -> HueCredentials:
     except FileNotFoundError as exc:
         raise ConfigError(
             f"Hue credentials file not found: {credential_path}. "
-            "Register with the bridge in manual mode first."
+            "Run tools/register_hue.py to pair with the bridge first."
         ) from exc
     except OSError as exc:
         raise ConfigError(f"Cannot inspect Hue credentials file: {exc}") from exc

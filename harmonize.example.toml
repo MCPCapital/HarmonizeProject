@@ -4,6 +4,7 @@
 [hue]
 entertainment_area = "TV area"
 credentials_file = "client.json"
+# bridge_id = "001788fffe123456"
 # bridge_ip = "192.0.2.10"
 
 [capture]

@@ -92,7 +92,9 @@ def run(argv: list[str] | None = None) -> int:
 
         credentials = load_credentials(config.hue.credentials_file, unattended=True)
         bridge = HueBridge(
-            config.hue.bridge_ip or discover_bridge(), credentials.username
+            config.hue.bridge_ip
+            or discover_bridge(bridge_id=config.hue.bridge_id),
+            credentials.username,
         )
         area = bridge.resolve_name(configured_area)
         if area.resource_id != snapshot.area_id:

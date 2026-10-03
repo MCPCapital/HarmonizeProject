@@ -2,8 +2,15 @@ import unittest
 from pathlib import Path
 from types import SimpleNamespace
 import tempfile
+from unittest.mock import patch
 
-from harmonize_core.cli import ShutdownCoordinator, _status_snapshot, build_parser, run
+from harmonize_core.cli import (
+    ShutdownCoordinator,
+    _resolve_bridge,
+    _status_snapshot,
+    build_parser,
+    run,
+)
 
 
 class FakeController:
@@ -64,6 +71,15 @@ class CliTests(unittest.TestCase):
         coordinator.request("SIGINT")
         self.assertEqual(controller.reasons, ["SIGTERM"])
         self.assertEqual(coordinator.reason, "SIGTERM")
+
+    @patch("harmonize_core.cli.discover_bridge", return_value="192.0.2.9")
+    def test_runtime_resolves_saved_bridge_id_by_mdns(self, discover):
+        options = SimpleNamespace(
+            bridge_ip=None,
+            bridge_id="ecb5fafffeb0bd37",
+        )
+        self.assertEqual(_resolve_bridge(SimpleNamespace(), options), "192.0.2.9")
+        discover.assert_called_once_with(bridge_id="ecb5fafffeb0bd37")
 
     def test_status_snapshot_reports_only_safe_performance_fields(self):
         class FakeSupervisor:

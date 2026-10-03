@@ -1,5 +1,6 @@
 # Hue bridge credentials generated during device registration.
 client.json
+client-*.json
 
 # Python runtime artifacts.
 __pycache__/
