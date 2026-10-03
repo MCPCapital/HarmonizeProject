@@ -1,0 +1,7 @@
+# Direct Python dependencies observed in the accepted Python 3.12 environment.
+# OpenCV is a separately managed system boundary; see
+# docs/milestone-2-configuration.md.
+numpy==1.26.4
+requests==2.32.3
+termcolor==2.5.0
+zeroconf==0.136.0

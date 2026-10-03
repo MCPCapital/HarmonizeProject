@@ -1,0 +1,46 @@
+[Unit]
+Description=Harmonize trusted-LAN HTTP control
+Documentation=file:/opt/harmonize/app/docs/milestone-8-http.md
+Wants=harmonize.service
+After=harmonize.service
+
+[Service]
+Type=simple
+User=harmonize
+Group=harmonize
+ExecStart=/opt/harmonize/venv/bin/python /opt/harmonize/app/tools/harmonize_http.py --bind=0.0.0.0 --port=8765 --socket=/run/harmonize/harmonize.sock
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=10s
+UMask=0077
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=harmonize-http
+
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectControlGroups=yes
+ProtectKernelLogs=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectClock=yes
+ProtectHostname=yes
+ProtectProc=invisible
+ProcSubset=pid
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+RemoveIPC=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+RestrictAddressFamilies=AF_UNIX AF_INET
+InaccessiblePaths=/etc/harmonize /var/lib/harmonize
+
+[Install]
+WantedBy=multi-user.target

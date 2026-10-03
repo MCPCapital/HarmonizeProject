@@ -1,0 +1,62 @@
+[Unit]
+Description=Harmonize Hue Ambilight
+Documentation=file:/opt/harmonize/app/docs/milestone-7-systemd.md
+Wants=network-online.target
+After=network-online.target
+ConditionPathExists=/etc/harmonize/client.json
+ConditionPathExists=/dev/v4l/by-id/usb-MACROSILICON_WARRKY_USB_3.0_62196249-video-index0
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Service]
+Type=simple
+User=harmonize
+Group=harmonize
+SupplementaryGroups=video
+WorkingDirectory=/opt/harmonize/app
+ExecStartPre=/opt/harmonize/venv/bin/python /opt/harmonize/app/tools/validate_config.py --config /etc/harmonize/harmonize.toml --mode unattended --check-credentials
+ExecStart=/opt/harmonize/venv/bin/python /opt/harmonize/app/harmonize.py --config /etc/harmonize/harmonize.toml
+ExecStartPost=/opt/harmonize/venv/bin/python /opt/harmonize/app/tools/wait_for_control.py --socket /run/harmonize/harmonize.sock --timeout-seconds 20
+Restart=on-failure
+RestartSec=5s
+TimeoutStartSec=30s
+TimeoutStopSec=25s
+KillSignal=SIGTERM
+UMask=0077
+RuntimeDirectory=harmonize
+RuntimeDirectoryMode=0700
+StateDirectory=harmonize
+StateDirectoryMode=0700
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=harmonize
+
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+PrivateTmp=yes
+PrivateDevices=no
+ProtectSystem=strict
+ProtectHome=yes
+ProtectControlGroups=yes
+ProtectKernelLogs=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectClock=yes
+ProtectHostname=yes
+ProtectProc=invisible
+ProcSubset=pid
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+RemoveIPC=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+DevicePolicy=closed
+DeviceAllow=/dev/v4l/by-id/usb-MACROSILICON_WARRKY_USB_3.0_62196249-video-index0 rw
+ReadWritePaths=/run/harmonize /var/lib/harmonize
+
+[Install]
+WantedBy=multi-user.target

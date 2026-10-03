@@ -1,0 +1,56 @@
+# Ordinary, non-secret Harmonize configuration.
+# Copy this file to harmonize.toml. Never put Hue credentials in this file.
+
+[hue]
+entertainment_area = "TV area"
+credentials_file = "client.json"
+# bridge_ip = "192.0.2.10"
+
+[capture]
+device_index = 0
+# device_path = "/dev/v4l/by-id/usb-capture-device-video-index0"
+backend = "gstreamer"
+# stream_source = "file-or-url"
+
+[control]
+# Local explicit commands use a user-owned Unix socket. Automatic provider
+# timing is defined now, but no automatic provider is enabled in Milestone 5.
+provider = "local"
+socket_path = "run/harmonize.sock"
+automatic_stale_seconds = 30.0
+automatic_enable_debounce_seconds = 1.0
+automatic_disable_grace_seconds = 5.0
+recovery_attempts = 3
+recovery_initial_seconds = 1.0
+
+[ambilight]
+video_wait_seconds = 2.0
+brightness_adjustment = 0
+auto_restart_seconds = 0.0
+single_light = false
+sample_breadth = 0.15
+update_interval_seconds = 0.05
+# Explicit OFF and daemon/service stop always turn every area light off.
+# This setting applies only to startup/runtime failure cleanup.
+exception_cleanup_behavior = "restore"
+
+[logging]
+level = "INFO"
+
+[light_state]
+journal_file = "run/harmonize-light-state.json"
+stale_after_seconds = 300.0
+restore_attempts = 3
+retry_seconds = 0.5
+
+[reliability]
+startup_timeout_seconds = 10.0
+shutdown_timeout_seconds = 15.0
+capture_read_timeout_seconds = 2.0
+capture_reconnect_initial_seconds = 0.5
+capture_reconnect_max_seconds = 5.0
+transport_reconnect_attempts = 3
+transport_reconnect_initial_seconds = 0.5
+hue_status_interval_seconds = 10.0
+health_interval_seconds = 1.0
+health_file = "run/harmonize-health.json"
